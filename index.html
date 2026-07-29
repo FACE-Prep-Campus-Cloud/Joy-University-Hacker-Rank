@@ -13,6 +13,7 @@
     --accent: #4f9dde;
     --border: #2a3540;
     --error: #ff8080;
+    --good: #6fd08c;
   }
   * { box-sizing: border-box; }
   body {
@@ -25,9 +26,24 @@
     padding: 48px 16px;
     min-height: 100vh;
   }
-  .card { width: 100%; max-width: 480px; }
+  .card { width: 100%; max-width: 520px; }
   h1 { font-size: 1.4rem; margin: 0 0 4px; }
-  p.sub { color: var(--muted); margin: 0 0 24px; font-size: 0.9rem; line-height: 1.4; }
+  p.sub { color: var(--muted); margin: 0 0 20px; font-size: 0.9rem; line-height: 1.4; }
+  .status {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+  .status.ready .dot { background: var(--good); }
+  .status.failed .dot { background: var(--error); }
   .row { display: flex; gap: 8px; }
   input {
     flex: 1;
@@ -48,8 +64,9 @@
     font-weight: 600;
     cursor: pointer;
     font-size: 0.95rem;
+    white-space: nowrap;
   }
-  button:disabled { opacity: 0.6; cursor: default; }
+  button:disabled { opacity: 0.5; cursor: default; }
   .result {
     margin-top: 20px;
     background: var(--panel);
@@ -78,34 +95,36 @@
     line-height: 1.4;
   }
   .error.visible { display: block; }
-  .hint {
-    margin-top: 24px;
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.5;
+  .suggestions {
+    margin-top: 10px;
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
   }
-  code {
+  .suggestions.visible { display: flex; }
+  .suggestions button {
     background: var(--panel);
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-size: 0.85em;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-weight: 400;
+    font-size: 0.78rem;
+    padding: 5px 10px;
   }
+  .suggestions button:hover { border-color: var(--accent); }
 </style>
 </head>
 <body>
 <div class="card">
   <h1>Score Lookup</h1>
-  <p class="sub">Enter a register number to fetch its record from the API.</p>
+  <p class="sub">Enter a register number to look up its record.</p>
+  <div id="status" class="status"><span class="dot"></span><span id="statusText">Loading records…</span></div>
   <div class="row">
-    <input id="regInput" placeholder="Register number" autocomplete="off" />
-    <button id="fetchBtn">Fetch</button>
+    <input id="regInput" placeholder="Register number" autocomplete="off" disabled />
+    <button id="fetchBtn" disabled>Fetch</button>
   </div>
   <div id="result" class="result"></div>
   <div id="error" class="error"></div>
-  <p class="hint">
-    If you get a "Failed to fetch" error, it's most likely CORS: the API needs to send
-    <code>Access-Control-Allow-Origin</code> headers for your page's domain to be allowed to read the response.
-  </p>
+  <div id="suggestions" class="suggestions"></div>
 </div>
 
 <script>
@@ -114,11 +133,83 @@
   const btn = document.getElementById("fetchBtn");
   const resultEl = document.getElementById("result");
   const errorEl = document.getElementById("error");
+  const suggestEl = document.getElementById("suggestions");
+  const statusEl = document.getElementById("status");
+  const statusText = document.getElementById("statusText");
 
-  async function fetchScore() {
+  let records = [];
+  let byId = new Map();
+
+  function setStatus(cls, text) {
+    statusEl.className = "status " + cls;
+    statusText.textContent = text;
+  }
+
+  async function loadAll() {
+    setStatus("", "Loading records…");
+    try {
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error("status " + res.status);
+      const data = await res.json();
+      records = Array.isArray(data) ? data : (Array.isArray(data.records) ? data.records : []);
+      byId = new Map(records.map(r => [String(r.registrationNumber || "").trim().toLowerCase(), r]));
+      setStatus("ready", records.length + " records loaded");
+      input.disabled = false;
+      btn.disabled = false;
+      input.focus();
+    } catch (err) {
+      setStatus("failed", "Failed to load records (" + err.message + ")");
+      errorEl.textContent = "Could not load the dataset. This is likely a CORS issue if you're opening this file locally — try hosting it, or check the browser console (F12) for details.";
+      errorEl.classList.add("visible");
+    }
+  }
+
+  function renderResult(data) {
+    resultEl.innerHTML = "";
+    const entries = Object.entries(data);
+    for (const [key, value] of entries) {
+      const row = document.createElement("div");
+      row.className = "field";
+      const k = document.createElement("span");
+      k.className = "k";
+      k.textContent = key;
+      const v = document.createElement("span");
+      v.className = "v";
+      v.textContent = typeof value === "object" && value !== null ? JSON.stringify(value) : value;
+      row.appendChild(k);
+      row.appendChild(v);
+      resultEl.appendChild(row);
+    }
+    resultEl.classList.add("visible");
+  }
+
+  function showSuggestions(query) {
+    const q = query.toLowerCase();
+    const matches = records
+      .filter(r => (r.registrationNumber || "").toLowerCase().includes(q) || (r.name || "").toLowerCase().includes(q))
+      .slice(0, 6);
+    suggestEl.innerHTML = "";
+    if (matches.length === 0) {
+      suggestEl.classList.remove("visible");
+      return;
+    }
+    for (const m of matches) {
+      const b = document.createElement("button");
+      b.textContent = m.registrationNumber + " — " + m.name;
+      b.addEventListener("click", () => {
+        input.value = m.registrationNumber;
+        lookup();
+      });
+      suggestEl.appendChild(b);
+    }
+    suggestEl.classList.add("visible");
+  }
+
+  function lookup() {
     const reg = input.value.trim();
     resultEl.classList.remove("visible");
     errorEl.classList.remove("visible");
+    suggestEl.classList.remove("visible");
     resultEl.innerHTML = "";
     errorEl.textContent = "";
 
@@ -128,55 +219,26 @@
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = "Loading...";
-
-    try {
-      const res = await fetch(API_BASE + encodeURIComponent(reg));
-      if (!res.ok) {
-        throw new Error("No record found (status " + res.status + ")");
-      }
-      const data = await res.json();
-      renderResult(data);
-    } catch (err) {
-      errorEl.textContent = err.message.includes("fetch")
-        ? "Request failed — likely CORS or the API is unreachable. See note below."
-        : err.message;
+    const found = byId.get(reg.toLowerCase());
+    if (found) {
+      renderResult(found);
+    } else {
+      errorEl.textContent = "No exact match for \"" + reg + "\". Possible matches below, or check the spelling.";
       errorEl.classList.add("visible");
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Fetch";
+      showSuggestions(reg);
     }
   }
 
-  function renderResult(data) {
-    resultEl.innerHTML = "";
-    const entries = Object.entries(data);
-    if (entries.length === 0) {
-      errorEl.textContent = "API returned an empty object.";
-      errorEl.classList.add("visible");
-      return;
-    }
-    for (const [key, value] of entries) {
-      const row = document.createElement("div");
-      row.className = "field";
-      const k = document.createElement("span");
-      k.className = "k";
-      k.textContent = key;
-      const v = document.createElement("span");
-      v.className = "v";
-      v.textContent = typeof value === "object" ? JSON.stringify(value) : value;
-      row.appendChild(k);
-      row.appendChild(v);
-      resultEl.appendChild(row);
-    }
-    resultEl.classList.add("visible");
-  }
-
-  btn.addEventListener("click", fetchScore);
+  btn.addEventListener("click", lookup);
   input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") fetchScore();
+    if (e.key === "Enter") lookup();
   });
+  input.addEventListener("input", () => {
+    if (input.value.trim().length >= 2) showSuggestions(input.value.trim());
+    else suggestEl.classList.remove("visible");
+  });
+
+  loadAll();
 </script>
 </body>
 </html>
