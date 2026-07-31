@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>FPC Readiness Monitor</title>
+<title>FPC Placement Readiness Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
@@ -337,7 +337,7 @@ button, input, select, textarea { font-family: inherit; }
       <select id="fpcCollegeSelect" onchange="fpcOnCollegeChange()"></select>
     </div>
     <div class="fcb-stats">
-      <div class="fcb-stat"><div class="fcb-icn">🏫</div><div><div class="fcb-num" id="fcbCollegesCount">—</div><div class="fcb-lbl">Colleges available</div></div></div>
+      <div class="fcb-stat"><div class="fcb-icn">🏫</div><div><div class="fcb-num" id="fcbCollegesCount">—</div><div class="fcb-lbl">Colleges with data</div></div></div>
       <div class="fcb-stat"><div class="fcb-icn">🎓</div><div><div class="fcb-num" id="fcbStudentsCount">—</div><div class="fcb-lbl">Students</div></div></div>
       <div class="fcb-stat"><div class="fcb-icn">📚</div><div><div class="fcb-num" id="fcbStreamsCount">—</div><div class="fcb-lbl">Streams</div></div></div>
     </div>
@@ -346,7 +346,7 @@ button, input, select, textarea { font-family: inherit; }
   <!-- ============================== FPC DASHBOARD VIEW ============================== -->
   <div class="fpc-view active" id="fpcViewDashboard">
     <div class="topnav">
-      <div class="brand"><span class="dot-mark"></span>FPC · Placement Cell <span class="fpc-nav-college-name"></span></div>
+      <div class="brand"><span class="dot-mark"></span>FPC · Placement Readiness <span class="fpc-nav-college-name"></span></div>
       <nav>
         <a class="fpc-nav-link active" data-view="dashboard" onclick="fpcGoDashboard(); return false;">Dashboard</a>
         <a class="fpc-nav-link" data-view="students" onclick="fpcGoStudents(); return false;">Students</a>
@@ -354,7 +354,7 @@ button, input, select, textarea { font-family: inherit; }
       <div class="topnav-right">
         <div class="status-pill loading fpc-status-pill" id="fpcStatusPill">
           <span class="dot"></span>
-          <span class="fpc-status-text">Connecting to Supabase…</span>
+          <span class="fpc-status-text">Connecting to live data…</span>
         </div>
         <div class="fpc-avatar-menu-wrap">
 <div class="avatar-chip brand-chip" title="Account">
@@ -366,15 +366,19 @@ button, input, select, textarea { font-family: inherit; }
 
     <div class="hero">
       <div>
-        <h1>Good Morning <span class="wave">👋</span></h1>
-        <p>Live tracking of HIRE Score (Marks: FOP / DSA / Aptitude) and FPC NQT Assessment averages for <span id="fpcHeroCollegeName">your college</span>.</p>
+        <h1>Placement Readiness Overview</h1>
+        <p>A read-only view of student technical readiness — HIRE Score (Programming Fundamentals, Data Structures &amp; Algorithms, and Aptitude) and FPC NQT mock-assessment results — for <span id="fpcHeroCollegeName">your college</span>. Updates automatically as new scores come in.</p>
       </div>
       <div class="hero-stats" id="fpcHeroStats"></div>
     </div>
 
     <div id="fpcErrorBanner">
-      <strong>Couldn't load data from Supabase</strong>
+      <strong>Couldn't load live data</strong>
       <span id="fpcErrorDetail"></span>
+    </div>
+
+    <div style="font-size:12px;color:var(--fpc-ink-soft);background:var(--fpc-card-soft);border:1px solid var(--fpc-line);border-radius:14px;padding:10px 16px;margin-bottom:18px;line-height:1.6;">
+      <strong style="color:var(--fpc-ink);">How to read this:</strong> HIRE Score measures coding readiness — FOP (Programming Fundamentals), DSA (Data Structures &amp; Algorithms) and Aptitude are each scored out of 100, and HIRE Overall combines them out of 900. FPC NQT is the placement cell's mock aptitude &amp; coding assessment, scored out of 100. This dashboard is a live, read-only snapshot — no data can be edited from here.
     </div>
 
     <div class="fpc-row-3">
@@ -397,22 +401,22 @@ button, input, select, textarea { font-family: inherit; }
             <div class="cap">avg overall</div>
           </div>
         </div>
-        <p>Average HIRE overall score. 60+ is on track, below 35 needs intervention.</p>
+        <p>Average HIRE Overall score, out of 900. 540+ is on track, below 315 needs support.</p>
       </div>
     </div>
 
     <div class="fpc-row-2">
       <div class="panel" id="fpcNqtPanel">
         <div class="panel-head">
-          <h2>FPC NQT Assessment</h2>
+          <h2>FPC NQT Mock Assessment</h2>
           <span id="fpcNqtMeta"></span>
         </div>
         <div id="fpcNqtBody"></div>
       </div>
       <div class="panel panel-dark">
         <div class="panel-head">
-          <h2>Below Readiness Line</h2>
-          <span>HIRE overall &lt; 300</span>
+          <h2>Needs Attention</h2>
+          <span>HIRE Overall below 300 (out of 900)</span>
         </div>
         <div class="flag-list" id="fpcFlaggedList"></div>
       </div>
@@ -427,7 +431,7 @@ button, input, select, textarea { font-family: inherit; }
   <!-- ============================== FPC STUDENTS VIEW ============================== -->
   <div class="fpc-view" id="fpcViewStudents">
     <div class="topnav">
-      <div class="brand"><span class="dot-mark"></span>FPC · Placement Cell <span class="fpc-nav-college-name"></span></div>
+      <div class="brand"><span class="dot-mark"></span>FPC · Placement Readiness <span class="fpc-nav-college-name"></span></div>
       <nav>
         <a class="fpc-nav-link" data-view="dashboard" onclick="fpcGoDashboard(); return false;">Dashboard</a>
         <a class="fpc-nav-link active" data-view="students" onclick="fpcGoStudents(); return false;">Students</a>
@@ -442,11 +446,7 @@ button, input, select, textarea { font-family: inherit; }
       </div>
     </div>
     <div class="reports-head">
-      <div><h1>Students</h1><p>Full student roster — search, filter, and click a name to open their profile.</p></div>
-      <div class="fpc-header-actions" id="fpcStudentHeaderActions">
-        <button class="fpc-btn-soft" onclick="fpcOpenImportModal()">⬆ Import CSV</button>
-        <button class="fpc-btn-dark" onclick="fpcOpenAddStudentModal()">+ Add student</button>
-      </div>
+      <div><h1>Students</h1><p>Browse the full roster — search or filter, then click a name to see a student's full readiness profile. This list is read-only.</p></div>
     </div>
     <div class="fpc-filters">
       <input type="text" id="fpcSearchBox" placeholder="Search by name, reg. no. or email…" oninput="fpcRenderTable()">
@@ -467,9 +467,9 @@ button, input, select, textarea { font-family: inherit; }
     <div class="fpc-table-wrap">
       <table>
         <thead>
-          <tr><th>Student</th><th>Eligibility</th><th>Comm. Level</th><th>FOP</th><th>DSA</th><th>Aptitude</th><th>HIRE Overall</th><th>FPC NQT Overall</th><th></th></tr>
+          <tr><th>Student</th><th>Eligibility</th><th>Communication</th><th>FOP</th><th>DSA</th><th>Aptitude</th><th>HIRE Overall</th><th>FPC NQT Overall</th></tr>
         </thead>
-        <tbody id="fpcTableBody"><tr class="loading-row"><td colspan="9">Loading students…</td></tr></tbody>
+        <tbody id="fpcTableBody"><tr class="loading-row"><td colspan="8">Loading students…</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -490,9 +490,6 @@ button, input, select, textarea { font-family: inherit; }
           <div class="p-loc">📍 <span id="fpcPLoc">—</span></div>
           <div class="p-bio" id="fpcPBio">—</div>
         </div>
-      </div>
-      <div class="profile-banner-actions">
-        <button class="btn-ghost-light" onclick="fpcOpenModal(fpcCurrentProfileRegNo, true)">Edit Student</button>
       </div>
     </div>
     <div class="profile-stats-row">
@@ -666,31 +663,46 @@ const FPC_SUPABASE_URL = 'https://rfzhifhvtopdayhaiuct.supabase.co';
 const FPC_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmemhpZmh2dG9wZGF5aGFpdWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODEyNzYsImV4cCI6MjEwMDQ1NzI3Nn0.X3vTyKA0f--0lQ4_CreXDAMVSHcvOBiWxFAVi2sGHmw';
 const HIRE_API_BASE = 'https://hirescore-xi.vercel.app/api/scores/';
 
-const COLLEGE_LIST = [
-  "AMET University","Alliance University","Asian School of Business",
-  "Bharathidasan College Of Arts & Science","Hindusthan College of Arts & Science",
-  "JOY University","Kamaraj College","Kamaraj Women's College",
-  "Kongunadu College of Arts and Science","Kristu Jayanti (DEEMED TO BE UNIVERSITY)",
-  "Nagarathinam Angalammal Arts and Science College","Noorul Islam Centre for Higher Education (NICHE)",
-  "Rathinam College Of Arts And Science","S-VYASA University","SDNB Vaishnav College for Women",
-  "Sasurie College of Arts and Science","Sree Saraswathi Thyagaraja College",
-  "Sri Amaraavathi College of Arts & Science","Sri Ramakrishna College of Arts and Science for Women",
-  "St. Agnes College (Autonomous)","Study World Group of Institutions","TERFs College of Arts and Science",
-  "TJS College of Arts and Science","Takshashila University","VLB Janakiammal College of Arts and Science",
-  "Vinayaga Mission's Research Foundation School of Arts and Science","Yenepoya (Deemed to be University)"
-];
+/* College dropdown is populated dynamically from Supabase — only colleges
+   that currently have at least one student on file are shown. As soon as a
+   college's data is added, it appears here automatically on next load. */
+let FPC_AVAILABLE_COLLEGES = [];
 
 const $ = id => document.getElementById(id);
 const show = id => $(id).classList.remove('hidden');
 const hide = id => $(id).classList.add('hidden');
 function escHTML(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-/* ── College selector (always on-page, no separate landing screen) ── */
-function fpcPopulateCollegeSelect(){
+/* ── College selector (always on-page, no separate landing screen) ──
+   Fetches the distinct list of colleges that have real student rows,
+   so recruiters only ever see colleges with data to show them. */
+async function fpcLoadAvailableColleges(){
   const sel = $('fpcCollegeSelect');
-  sel.innerHTML = '<option value="" disabled selected>Choose a college…</option>' +
-    COLLEGE_LIST.map(n => `<option value="${escHTML(n)}">${escHTML(n)}</option>`).join('');
-  document.getElementById('fcbCollegesCount').textContent = COLLEGE_LIST.length;
+  sel.disabled = true;
+  sel.innerHTML = '<option value="" disabled selected>Loading colleges…</option>';
+  try{
+    const url = `${FPC_SUPABASE_URL}/rest/v1/students?select=college`;
+    const res = await fetch(url, { headers:{ apikey: FPC_SUPABASE_ANON_KEY, Authorization: `Bearer ${FPC_SUPABASE_ANON_KEY}` } });
+    if(!res.ok) throw new Error(`Supabase responded ${res.status}`);
+    const rows = await res.json();
+    const names = [...new Set(rows.map(r => (r.college || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    FPC_AVAILABLE_COLLEGES = names;
+    sel.disabled = false;
+    if(!names.length){
+      sel.innerHTML = '<option value="" disabled selected>No colleges with data yet</option>';
+      document.getElementById('fcbCollegesCount').textContent = 0;
+      fpcSetStatus(null, 'No college data available yet');
+      return;
+    }
+    sel.innerHTML = '<option value="" disabled selected>Choose a college…</option>' +
+      names.map(n => `<option value="${escHTML(n)}">${escHTML(n)}</option>`).join('');
+    document.getElementById('fcbCollegesCount').textContent = names.length;
+  }catch(e){
+    sel.disabled = false;
+    sel.innerHTML = '<option value="" disabled selected>Couldn\'t load colleges</option>';
+    document.getElementById('fcbCollegesCount').textContent = '—';
+    fpcShowError(`Couldn't load the list of colleges from Supabase (${e.message}). Try refreshing the page.`);
+  }
 }
 
 function setNavCollegeName(name){
@@ -780,7 +792,7 @@ document.addEventListener('click', e => {
 function fpcShowError(message){
   document.getElementById('fpcErrorBanner').classList.add('open');
   document.getElementById('fpcErrorDetail').textContent = message;
-  document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="9">No data to display.</td></tr>`;
+  document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="8">No data to display.</td></tr>`;
 }
 function fpcShowToast(message, isError){
   const t = document.getElementById('fpcToast');
@@ -798,7 +810,7 @@ function fpcCollegeQueryParam(){
 async function fpcLoadStudents(){
   if(!fpcSelectedCollege){
     fpcSetStatus(null, 'No college selected');
-    document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="9">Select a college above to load its data.</td></tr>`;
+    document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="8">Select a college above to load its data.</td></tr>`;
     return;
   }
   fpcSetStatus('loading', 'Loading roster + HIRE scores…');
@@ -1001,14 +1013,13 @@ function fpcStudentRowHtml(s){
     <td>${s.communication_skill_level||'—'}</td>
     <td>${fpcLaneBar(s.hire_fop, '', false)}</td><td>${fpcLaneBar(s.hire_dsa, '', false)}</td><td>${fpcLaneBar(s.hire_aptitude, '', false)}</td>
     <td>${fpcLaneBar(s.hire_overall, '', false)}</td><td>${fpcLaneBar(s.nqt_overall,'teal')}</td>
-    <td><button class="row-edit-btn" onclick="event.stopPropagation(); fpcOpenModal('${s.registration_number}', true)">Edit</button></td>
   </tr>`;
 }
 function fpcRenderTable(){
   const rows = fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect');
   document.getElementById('fpcRowCount').textContent = `${rows.length} of ${FPC_STUDENTS.length} students`;
   document.getElementById('fpcTableBody').innerHTML = rows.length ? rows.map(fpcStudentRowHtml).join('')
-    : `<tr class="loading-row"><td colspan="9">${FPC_STUDENTS.length ? 'No students match this filter.' : 'No students on file for this college yet.'}</td></tr>`;
+    : `<tr class="loading-row"><td colspan="8">${FPC_STUDENTS.length ? 'No students match this filter.' : 'No students on file for this college yet.'}</td></tr>`;
 }
 function fpcRenderCollegeBarStats(){
   document.getElementById('fcbStudentsCount').textContent = FPC_STUDENTS.length;
@@ -1429,11 +1440,11 @@ function fpcOpenAddStudentModal(){
 }
 
 /* ── Boot ── */
-fpcPopulateCollegeSelect();
+fpcLoadAvailableColleges();
 document.getElementById('fcbStudentsCount').textContent = '—';
 document.getElementById('fcbStreamsCount').textContent = '—';
 fpcSetStatus(null, 'No college selected');
-document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="9">Select a college above to load its data.</td></tr>`;
+document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="8">Select a college above to load its data.</td></tr>`;
 </script>
 </body>
 </html>
