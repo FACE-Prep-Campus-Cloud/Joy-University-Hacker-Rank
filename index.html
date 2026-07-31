@@ -320,7 +320,7 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   HANDSHAKE INTRO SPLASH
+   HANDSHAKE INTRO SPLASH (Lottie-powered)
    ══════════════════════════════════════════════════════════ */
 #fpcSplash{
   position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
@@ -332,51 +332,9 @@ button, input, select, textarea { font-family: inherit; }
   transition: opacity .55s ease, visibility .55s ease;
 }
 #fpcSplash.fpc-splash-hide{ opacity:0; visibility:hidden; pointer-events:none; }
-#fpcSplash .fpc-splash-stage{ position:relative; width:220px; height:150px; }
-#fpcSplash .fpc-hs-rig{ position:absolute; inset:0; animation: fpcGripLoop .6s ease-in-out .95s infinite; transform-origin:50% 60%; }
-#fpcSplash .fpc-arm{
-  position:absolute; top:50%; width:118px; height:46px; border-radius:23px;
-  background:linear-gradient(135deg,var(--fpc-olive-deep,#3B4522),var(--fpc-olive,#5C6B32));
-  box-shadow:0 10px 24px -8px rgba(59,69,34,.45);
-}
-#fpcSplash .fpc-arm::after{
-  content:''; position:absolute; width:52px; height:52px; border-radius:50%;
-  background:linear-gradient(135deg,var(--fpc-lime,#C7DE3E),var(--fpc-lime-deep,#9CB52A));
-  top:50%; box-shadow:0 6px 16px -6px rgba(59,69,34,.4);
-}
-#fpcSplash .fpc-arm-l{ left:-40px; transform:translateY(-50%) translateX(-160px); animation:fpcArmInL .9s cubic-bezier(.2,.8,.3,1) .15s forwards; }
-#fpcSplash .fpc-arm-l::after{ right:-18px; transform:translateY(-50%); }
-#fpcSplash .fpc-arm-l::before{
-  content:''; position:absolute; width:24px; height:17px; border-radius:9px;
-  background:linear-gradient(135deg,var(--fpc-lime,#C7DE3E),var(--fpc-lime-deep,#9CB52A));
-  right:-10px; top:-4px; transform:rotate(-30deg);
-  box-shadow:0 4px 10px -4px rgba(59,69,34,.35);
-}
-#fpcSplash .fpc-arm-r{ right:-40px; transform:translateY(-50%) translateX(160px); animation:fpcArmInR .9s cubic-bezier(.2,.8,.3,1) .15s forwards; }
-#fpcSplash .fpc-arm-r::after{ left:-18px; transform:translateY(-50%); }
-#fpcSplash .fpc-arm-r::before{
-  content:''; position:absolute; width:24px; height:17px; border-radius:9px;
-  background:linear-gradient(135deg,var(--fpc-lime,#C7DE3E),var(--fpc-lime-deep,#9CB52A));
-  left:-10px; top:-4px; transform:rotate(30deg);
-  box-shadow:0 4px 10px -4px rgba(59,69,34,.35);
-}
-@keyframes fpcArmInL{ to{ transform:translateY(-50%) translateX(0); } }
-@keyframes fpcArmInR{ to{ transform:translateY(-50%) translateX(0); } }
-@keyframes fpcGripLoop{
-  0%,100%{ transform:translateY(0) rotate(0deg) scaleY(1); }
-  50%{ transform:translateY(5px) rotate(-1.4deg) scaleY(.97); }
-}
-#fpcSplash .fpc-splash-spark{
-  position:absolute; top:50%; left:50%; width:14px; height:14px; border-radius:50%;
-  background:var(--fpc-gold,#D98A3D); transform:translate(-50%,-50%) scale(0); opacity:0;
-  animation: fpcSpark .6s ease 1.05s forwards;
-}
-@keyframes fpcSpark{
-  0%{ transform:translate(-50%,-50%) scale(0); opacity:0; }
-  40%{ transform:translate(-50%,-50%) scale(2.6); opacity:.9; }
-  100%{ transform:translate(-50%,-50%) scale(4.2); opacity:0; }
-}
-#fpcSplash .fpc-splash-text{ text-align:center; opacity:0; animation:fpcFadeUp .6s ease .55s forwards; }
+#fpcSplash .fpc-splash-stage{ position:relative; width:320px; max-width:70vw; }
+#fpcSplash #fpcLottieHandshake{ width:100%; height:100%; }
+#fpcSplash .fpc-splash-text{ text-align:center; opacity:0; animation:fpcFadeUp .6s ease .2s forwards; }
 #fpcSplash .fpc-splash-text .brandline{ display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px; color:var(--fpc-ink,#1C2116); }
 #fpcSplash .fpc-splash-text .brandline .dot-mark{width:11px;height:11px;border-radius:4px;background:var(--fpc-lime,#C7DE3E);}
 #fpcSplash .fpc-splash-text p{ margin-top:6px; font-size:12.5px; color:var(--fpc-ink-soft,#6E7660); }
@@ -406,14 +364,10 @@ button, input, select, textarea { font-family: inherit; }
 </head>
 <body>
 
-<!-- ── INTRO HANDSHAKE ANIMATION ── -->
+<!-- ── INTRO HANDSHAKE ANIMATION (Lottie) ── -->
 <div id="fpcSplash">
   <div class="fpc-splash-stage">
-    <div class="fpc-hs-rig">
-      <div class="fpc-arm fpc-arm-l"></div>
-      <div class="fpc-arm fpc-arm-r"></div>
-      <div class="fpc-splash-spark"></div>
-    </div>
+    <div id="fpcLottieHandshake"></div>
   </div>
   <div class="fpc-splash-text">
     <div class="brandline"><span class="dot-mark"></span>FACE Prep · Campus Connect</div>
@@ -1600,15 +1554,35 @@ function fpcOpenAddStudentModal(){
 fpcLoadCampusOverview();
 document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="8">Select a campus from the overview page to load its data.</td></tr>`;
 
-/* ── Intro handshake splash: play once, then reveal the app ── */
+/* ── Intro handshake splash: play the Lottie animation once, then reveal the app ── */
 window.addEventListener('load', ()=>{
   const splash = document.getElementById('fpcSplash');
   if(!splash) return;
-  setTimeout(()=>{
+  const hideSplash = ()=>{
     splash.classList.add('fpc-splash-hide');
     setTimeout(()=> splash.remove(), 650);
-  }, 2600);
+  };
+  try{
+    const dataEl = document.getElementById('fpc-handshake-lottie-data');
+    const animationData = JSON.parse(dataEl.textContent);
+    const anim = lottie.loadAnimation({
+      container: document.getElementById('fpcLottieHandshake'),
+      renderer: 'svg',
+      loop: false,
+      autoplay: true,
+      animationData
+    });
+    let hidden = false;
+    anim.addEventListener('complete', ()=>{ if(!hidden){ hidden = true; hideSplash(); } });
+    // Fallback in case 'complete' never fires
+    setTimeout(()=>{ if(!hidden){ hidden = true; hideSplash(); } }, 7000);
+  }catch(e){
+    console.error('Handshake splash animation failed to load:', e);
+    setTimeout(hideSplash, 1800);
+  }
 });
 </script>
+
+<script type="application/json" id="fpc-handshake-lottie-data">__FPC_HANDSHAKE_LOTTIE_JSON__</script>
 </body>
 </html>
