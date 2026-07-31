@@ -333,6 +333,7 @@ button, input, select, textarea { font-family: inherit; }
 }
 #fpcSplash.fpc-splash-hide{ opacity:0; visibility:hidden; pointer-events:none; }
 #fpcSplash .fpc-splash-stage{ position:relative; width:220px; height:150px; }
+#fpcSplash .fpc-hs-rig{ position:absolute; inset:0; animation: fpcGripLoop .6s ease-in-out .95s infinite; transform-origin:50% 60%; }
 #fpcSplash .fpc-arm{
   position:absolute; top:50%; width:118px; height:46px; border-radius:23px;
   background:linear-gradient(135deg,var(--fpc-olive-deep,#3B4522),var(--fpc-olive,#5C6B32));
@@ -343,14 +344,27 @@ button, input, select, textarea { font-family: inherit; }
   background:linear-gradient(135deg,var(--fpc-lime,#C7DE3E),var(--fpc-lime-deep,#9CB52A));
   top:50%; box-shadow:0 6px 16px -6px rgba(59,69,34,.4);
 }
-#fpcSplash .fpc-arm-l{ left:-40px; transform:translateY(-50%) translateX(-160px); animation:fpcArmInL .9s cubic-bezier(.2,.8,.3,1) .15s forwards, fpcShake 1.6s ease-in-out 1.1s 2; }
+#fpcSplash .fpc-arm-l{ left:-40px; transform:translateY(-50%) translateX(-160px); animation:fpcArmInL .9s cubic-bezier(.2,.8,.3,1) .15s forwards; }
 #fpcSplash .fpc-arm-l::after{ right:-18px; transform:translateY(-50%); }
-#fpcSplash .fpc-arm-r{ right:-40px; transform:translateY(-50%) translateX(160px); animation:fpcArmInR .9s cubic-bezier(.2,.8,.3,1) .15s forwards, fpcShake 1.6s ease-in-out 1.1s 2; }
+#fpcSplash .fpc-arm-l::before{
+  content:''; position:absolute; width:24px; height:17px; border-radius:9px;
+  background:linear-gradient(135deg,var(--fpc-lime,#C7DE3E),var(--fpc-lime-deep,#9CB52A));
+  right:-10px; top:-4px; transform:rotate(-30deg);
+  box-shadow:0 4px 10px -4px rgba(59,69,34,.35);
+}
+#fpcSplash .fpc-arm-r{ right:-40px; transform:translateY(-50%) translateX(160px); animation:fpcArmInR .9s cubic-bezier(.2,.8,.3,1) .15s forwards; }
 #fpcSplash .fpc-arm-r::after{ left:-18px; transform:translateY(-50%); }
+#fpcSplash .fpc-arm-r::before{
+  content:''; position:absolute; width:24px; height:17px; border-radius:9px;
+  background:linear-gradient(135deg,var(--fpc-lime,#C7DE3E),var(--fpc-lime-deep,#9CB52A));
+  left:-10px; top:-4px; transform:rotate(30deg);
+  box-shadow:0 4px 10px -4px rgba(59,69,34,.35);
+}
 @keyframes fpcArmInL{ to{ transform:translateY(-50%) translateX(0); } }
 @keyframes fpcArmInR{ to{ transform:translateY(-50%) translateX(0); } }
-@keyframes fpcShake{
-  0%,100%{ margin-top:0; } 25%{ margin-top:-4px; } 50%{ margin-top:0; } 75%{ margin-top:4px; }
+@keyframes fpcGripLoop{
+  0%,100%{ transform:translateY(0) rotate(0deg) scaleY(1); }
+  50%{ transform:translateY(5px) rotate(-1.4deg) scaleY(.97); }
 }
 #fpcSplash .fpc-splash-spark{
   position:absolute; top:50%; left:50%; width:14px; height:14px; border-radius:50%;
@@ -395,9 +409,11 @@ button, input, select, textarea { font-family: inherit; }
 <!-- ── INTRO HANDSHAKE ANIMATION ── -->
 <div id="fpcSplash">
   <div class="fpc-splash-stage">
-    <div class="fpc-arm fpc-arm-l"></div>
-    <div class="fpc-arm fpc-arm-r"></div>
-    <div class="fpc-splash-spark"></div>
+    <div class="fpc-hs-rig">
+      <div class="fpc-arm fpc-arm-l"></div>
+      <div class="fpc-arm fpc-arm-r"></div>
+      <div class="fpc-splash-spark"></div>
+    </div>
   </div>
   <div class="fpc-splash-text">
     <div class="brandline"><span class="dot-mark"></span>FACE Prep · Campus Connect</div>
@@ -1591,7 +1607,7 @@ window.addEventListener('load', ()=>{
   setTimeout(()=>{
     splash.classList.add('fpc-splash-hide');
     setTimeout(()=> splash.remove(), 650);
-  }, 2200);
+  }, 2600);
 });
 </script>
 </body>
