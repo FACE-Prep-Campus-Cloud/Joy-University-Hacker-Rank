@@ -31,59 +31,6 @@ button, input, select, textarea { font-family: inherit; }
 :focus-visible { outline: 2px solid var(--fpc-olive-deep); outline-offset: 2px; }
 
 /* ══════════════════════════════════════════════════════════
-   LANDING — college picker
-   ══════════════════════════════════════════════════════════ */
-#landing-screen{
-  min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:24px;
-  position:relative; overflow:hidden;
-}
-#landing-screen::before{
-  content:''; position:absolute; top:-170px; right:-170px; width:460px; height:460px; border-radius:50%;
-  border: 56px solid var(--fpc-lime); opacity:.16; pointer-events:none;
-}
-#landing-screen::after{
-  content:''; position:absolute; bottom:-210px; left:-150px; width:420px; height:420px; border-radius:50%;
-  border: 2px dashed var(--fpc-lime-deep); opacity:.28; pointer-events:none;
-}
-.landing-card{
-  position:relative; z-index:1; width:100%; max-width:440px; background:var(--fpc-card);
-  border:1px solid var(--fpc-line); border-radius:28px; padding:40px 34px 32px; box-shadow: var(--fpc-shadow);
-  animation: landingRise .5s cubic-bezier(.16,1,.3,1) both;
-}
-@keyframes landingRise{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
-.landing-badge{
-  display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-  color: var(--fpc-olive-deep); background: var(--fpc-card-soft); border:1px solid var(--fpc-line); padding:6px 13px;
-  border-radius:100px; margin-bottom:20px;
-}
-.landing-badge .dot-mark{ width:9px; height:9px; border-radius:3px; background:var(--fpc-lime); box-shadow:0 0 0 3px var(--fpc-card-soft); }
-.landing-card h1{ font-size:27px; font-weight:700; letter-spacing:-0.01em; line-height:1.15; }
-.landing-card p.sub{ font-size:13.5px; color:var(--fpc-ink-soft); margin-top:10px; line-height:1.6; max-width:370px; }
-.landing-field{ margin-top:26px; }
-.landing-field label{ display:block; font-size:11px; font-weight:700; color:var(--fpc-ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
-.landing-field select{
-  width:100%; padding:13px 16px; border-radius:14px; border:1px solid var(--fpc-line); background:var(--fpc-card-soft);
-  color: var(--fpc-ink); font-size:14.5px; font-weight:600; cursor:pointer; appearance:none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236E7660' stroke-width='1.5'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position: right 16px center;
-}
-.landing-open-btn{
-  width:100%; margin-top:16px; background: var(--fpc-ink); color:#fff; border:none; padding:14px 18px; border-radius:100px;
-  font-size:14.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
-  transition: background .15s, transform .1s;
-}
-.landing-open-btn:hover{ background:#000; }
-.landing-open-btn:active{ transform: scale(.98); }
-.landing-open-btn .arrow{ transition: transform .18s; }
-.landing-open-btn:hover .arrow{ transform: translateX(3px); }
-.landing-error{
-  display:none; font-size:12.5px; color:#8E332B; background: var(--fpc-red-dim); border:1px solid #EFC1BA;
-  border-radius:10px; padding:9px 12px; margin-top:12px; line-height:1.4;
-}
-.landing-error.show{ display:block; }
-.landing-hint{ font-size:11.5px; color: var(--fpc-ink-soft); margin-top:16px; text-align:center; line-height:1.5; }
-
-/* ══════════════════════════════════════════════════════════
    FPC READINESS MONITOR — fully scoped styles
    ══════════════════════════════════════════════════════════ */
 #fpc-readiness-screen{
@@ -123,6 +70,17 @@ button, input, select, textarea { font-family: inherit; }
 #fpc-readiness-screen .avatar-chip{width:36px;height:36px;border-radius:50%;background:var(--fpc-olive-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;flex-shrink:0;overflow:hidden;}
 #fpc-readiness-screen .avatar-chip img{width:100%;height:100%;object-fit:cover;display:block;}
 #fpc-readiness-screen .avatar-chip.brand-chip{background:var(--fpc-olive-deep);}
+
+#fpc-readiness-screen .fpc-college-bar{display:flex;align-items:center;gap:22px;flex-wrap:wrap;background:var(--fpc-card);border:1px solid var(--fpc-line);border-radius:var(--fpc-radius-xl);padding:16px 22px;margin-bottom:18px;box-shadow:var(--fpc-shadow);}
+#fpc-readiness-screen .fcb-select-wrap{display:flex;flex-direction:column;gap:6px;min-width:260px;flex:1 1 280px;}
+#fpc-readiness-screen .fcb-select-wrap label{font-size:11px;font-weight:700;color:var(--fpc-ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+#fpc-readiness-screen #fpcCollegeSelect{width:100%;padding:11px 15px;border-radius:100px;border:1px solid var(--fpc-line);background:var(--fpc-card-soft);color:var(--fpc-ink);font-size:14px;font-weight:600;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236E7660' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
+#fpc-readiness-screen .fcb-stats{display:flex;gap:26px;flex-wrap:wrap;}
+#fpc-readiness-screen .fcb-stat{display:flex;align-items:center;gap:10px;}
+#fpc-readiness-screen .fcb-stat .fcb-icn{width:36px;height:36px;border-radius:10px;background:var(--fpc-card-soft);border:1px solid var(--fpc-line);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+#fpc-readiness-screen .fcb-stat .fcb-num{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;line-height:1;}
+#fpc-readiness-screen .fcb-stat .fcb-lbl{font-size:11px;color:var(--fpc-ink-soft);margin-top:2px;}
+#fpc-readiness-screen .fpc-nocollege-note{font-size:12px;color:var(--fpc-ink-soft);}
 
 #fpc-readiness-screen .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px;}
 #fpc-readiness-screen .hero h1{font-size:27px;font-weight:600;letter-spacing:-0.01em;}
@@ -368,25 +326,22 @@ button, input, select, textarea { font-family: inherit; }
 </head>
 <body>
 
-<!-- ── LANDING: pick a college ── -->
-<div id="landing-screen">
-  <div class="landing-card">
-    <div class="landing-badge"><span class="dot-mark"></span>FPC · Placement Cell</div>
-    <h1>FPC Readiness Monitor</h1>
-    <p class="sub">Track HIRE Score (FOP · DSA · Aptitude) and FPC NQT Assessment readiness for every student, college by college.</p>
-    <div class="landing-field">
-      <label for="landing-college-select">Select a college</label>
-      <select id="landing-college-select"></select>
-    </div>
-    <div class="landing-error" id="landing-error">Please select a college to continue.</div>
-    <button class="landing-open-btn" onclick="handleOpenDashboard()">Open dashboard <span class="arrow">→</span></button>
-    <div class="landing-hint">Data updates live from the HIRE assessment API and campus mentor evaluations.</div>
-  </div>
-</div>
-
 <!-- ── FPC READINESS MONITOR ── -->
-<div id="fpc-readiness-screen" class="hidden">
+<div id="fpc-readiness-screen">
   <div class="fpc-scroll-wrap" style="flex:1;min-height:0;overflow-y:auto;">
+
+  <!-- ============================== COLLEGE SELECTOR BAR (always visible) ============================== -->
+  <div class="fpc-college-bar">
+    <div class="fcb-select-wrap">
+      <label for="fpcCollegeSelect">College</label>
+      <select id="fpcCollegeSelect" onchange="fpcOnCollegeChange()"></select>
+    </div>
+    <div class="fcb-stats">
+      <div class="fcb-stat"><div class="fcb-icn">🏫</div><div><div class="fcb-num" id="fcbCollegesCount">—</div><div class="fcb-lbl">Colleges available</div></div></div>
+      <div class="fcb-stat"><div class="fcb-icn">🎓</div><div><div class="fcb-num" id="fcbStudentsCount">—</div><div class="fcb-lbl">Students</div></div></div>
+      <div class="fcb-stat"><div class="fcb-icn">📚</div><div><div class="fcb-num" id="fcbStreamsCount">—</div><div class="fcb-lbl">Streams</div></div></div>
+    </div>
+  </div>
 
   <!-- ============================== FPC DASHBOARD VIEW ============================== -->
   <div class="fpc-view active" id="fpcViewDashboard">
@@ -395,20 +350,16 @@ button, input, select, textarea { font-family: inherit; }
       <nav>
         <a class="fpc-nav-link active" data-view="dashboard" onclick="fpcGoDashboard(); return false;">Dashboard</a>
         <a class="fpc-nav-link" data-view="students" onclick="fpcGoStudents(); return false;">Students</a>
-        <a class="fpc-nav-link" data-view="reports" onclick="fpcGoReports(); return false;">Reports</a>
       </nav>
       <div class="topnav-right">
-        <button class="fpc-btn-soft" onclick="switchCollege()">⇄ Switch college</button>
         <div class="status-pill loading fpc-status-pill" id="fpcStatusPill">
           <span class="dot"></span>
           <span class="fpc-status-text">Connecting to Supabase…</span>
         </div>
         <div class="fpc-avatar-menu-wrap">
-<div class="avatar-chip brand-chip" onclick="fpcToggleAvatarMenu(this)" title="Account">
+<div class="avatar-chip brand-chip" title="Account">
   <img src="boy.png" alt="Account avatar">
-</div>          <div class="fpc-avatar-dropdown">
-            <button type="button" onclick="switchCollege()">⇄ Switch college</button>
-          </div>
+</div>
         </div>
       </div>
     </div>
@@ -480,17 +431,13 @@ button, input, select, textarea { font-family: inherit; }
       <nav>
         <a class="fpc-nav-link" data-view="dashboard" onclick="fpcGoDashboard(); return false;">Dashboard</a>
         <a class="fpc-nav-link active" data-view="students" onclick="fpcGoStudents(); return false;">Students</a>
-        <a class="fpc-nav-link" data-view="reports" onclick="fpcGoReports(); return false;">Reports</a>
       </nav>
       <div class="topnav-right">
-        <button class="fpc-btn-soft" onclick="switchCollege()">⇄ Switch college</button>
         <div class="status-pill live fpc-status-pill" id="fpcStatusPill2"><span class="dot"></span><span class="fpc-status-text">Live</span></div>
         <div class="fpc-avatar-menu-wrap">
-<div class="avatar-chip brand-chip" onclick="fpcToggleAvatarMenu(this)" title="Account">
+<div class="avatar-chip brand-chip" title="Account">
   <img src="boy.png" alt="Account avatar">
-</div>          <div class="fpc-avatar-dropdown">
-            <button type="button" onclick="switchCollege()">⇄ Switch college</button>
-          </div>
+</div>
         </div>
       </div>
     </div>
@@ -581,56 +528,6 @@ button, input, select, textarea { font-family: inherit; }
     <div class="fpc-row-2">
       <div class="panel"><div class="panel-head"><h2>Profile</h2><span>&nbsp;</span></div><div class="detail-grid" id="fpcPProfileGrid"></div></div>
       <div class="panel"><div class="panel-head"><h2>Profile Links</h2><span>&nbsp;</span></div><div class="modal-links" id="fpcPLinks"></div></div>
-    </div>
-  </div>
-
-  <!-- ============================== FPC REPORTS VIEW ============================== -->
-  <div class="fpc-view" id="fpcViewReports">
-    <div class="topnav">
-      <div class="brand"><span class="dot-mark"></span>FPC · Placement Cell <span class="fpc-nav-college-name"></span></div>
-      <nav>
-        <a class="fpc-nav-link" data-view="dashboard" onclick="fpcGoDashboard(); return false;">Dashboard</a>
-        <a class="fpc-nav-link" data-view="students" onclick="fpcGoStudents(); return false;">Students</a>
-        <a class="fpc-nav-link active" data-view="reports" onclick="fpcGoReports(); return false;">Reports</a>
-      </nav>
-      <div class="topnav-right">
-        <button class="fpc-btn-soft" onclick="switchCollege()">⇄ Switch college</button>
-        <div class="status-pill live fpc-status-pill"><span class="dot"></span><span class="fpc-status-text">Live</span></div>
-        <div class="fpc-avatar-menu-wrap">
-<div class="avatar-chip brand-chip" onclick="fpcToggleAvatarMenu(this)" title="Account">
-  <img src="boy.png" alt="Account avatar">
-</div>          <div class="fpc-avatar-dropdown">
-            <button type="button" onclick="switchCollege()">⇄ Switch college</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="reports-head">
-      <div><h1>Reports</h1>
-      <p>Full HIRE &amp; FPC NQT score listing. Filter, sort and drill into any student.</p></div>
-    </div>
-    <div class="reports-summary" id="fpcReportsSummary"></div>
-    <div class="fpc-filters">
-      <input type="text" id="fpcReportsSearchBox" placeholder="Search by name, reg. no. or email…" oninput="fpcRenderReportsTable()">
-      <select id="fpcReportsDeptFilter" onchange="fpcRenderReportsTable()"><option value="">All departments</option></select>
-      <select id="fpcReportsEligFilter" onchange="fpcRenderReportsTable()">
-        <option value="">All eligibility</option>
-        <option value="Eligible">Eligible</option>
-        <option value="Pending">Pending review</option>
-      </select>
-      <select id="fpcReportsSortSelect" onchange="fpcRenderReportsTable()">
-        <option value="s_no">Sort: Roll order</option>
-        <option value="hire_overall_desc">Sort: HIRE Overall ↓</option>
-        <option value="hire_overall_asc">Sort: HIRE Overall ↑</option>
-        <option value="nqt_overall_desc">Sort: NQT Overall ↓</option>
-      </select>
-      <span class="count" id="fpcReportsRowCount"></span>
-    </div>
-    <div class="fpc-table-wrap">
-      <table>
-        <thead><tr><th>Student</th><th>Eligibility</th><th>Comm. Level</th><th>FOP</th><th>DSA</th><th>Aptitude</th><th>HIRE Overall</th><th>FPC NQT Overall</th><th></th></tr></thead>
-        <tbody id="fpcReportsTableBody"><tr class="loading-row"><td colspan="9">Loading students…</td></tr></tbody>
-      </table>
     </div>
   </div>
 
@@ -761,8 +658,9 @@ button, input, select, textarea { font-family: inherit; }
    FPC READINESS MONITOR — standalone
    Connects directly to the FPC Supabase project (REST API, no
    supabase-js needed) and to the external HIRE scoring API.
-   No login: pick a college on the landing page to open its
-   dashboard. Editing / Import / Add student are all enabled.
+   No login: pick a college from the dropdown on the dashboard
+   itself to load its data. Editing / Import / Add student are
+   all enabled.
    ============================================================ */
 const FPC_SUPABASE_URL = 'https://rfzhifhvtopdayhaiuct.supabase.co';
 const FPC_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmemhpZmh2dG9wZGF5aGFpdWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODEyNzYsImV4cCI6MjEwMDQ1NzI3Nn0.X3vTyKA0f--0lQ4_CreXDAMVSHcvOBiWxFAVi2sGHmw';
@@ -787,48 +685,28 @@ const show = id => $(id).classList.remove('hidden');
 const hide = id => $(id).classList.add('hidden');
 function escHTML(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-/* ── Landing page ── */
-function populateLandingSelect(){
-  const sel = $('landing-college-select');
+/* ── College selector (always on-page, no separate landing screen) ── */
+function fpcPopulateCollegeSelect(){
+  const sel = $('fpcCollegeSelect');
   sel.innerHTML = '<option value="" disabled selected>Choose a college…</option>' +
     COLLEGE_LIST.map(n => `<option value="${escHTML(n)}">${escHTML(n)}</option>`).join('');
+  document.getElementById('fcbCollegesCount').textContent = COLLEGE_LIST.length;
 }
-populateLandingSelect();
-
-function handleOpenDashboard(){
-  const val = $('landing-college-select').value;
-  const err = $('landing-error');
-  if(!val){ err.classList.add('show'); return; }
-  err.classList.remove('show');
-  openFpcDashboard(val);
-}
-document.addEventListener('keydown', e => {
-  if(e.key === 'Enter' && document.activeElement && document.activeElement.id === 'landing-college-select'){
-    handleOpenDashboard();
-  }
-});
 
 function setNavCollegeName(name){
   document.querySelectorAll('.fpc-nav-college-name').forEach(el => el.textContent = name ? '· ' + name : '');
 }
-function openFpcDashboard(collegeName){
-  fpcSelectedCollege = collegeName;
-  hide('landing-screen');
-  show('fpc-readiness-screen');
-  setNavCollegeName(collegeName);
+
+function fpcOnCollegeChange(){
+  const val = $('fpcCollegeSelect').value;
+  if(!val) return;
+  fpcSelectedCollege = val;
+  setNavCollegeName(val);
   FPC_STUDENTS = [];
   fpcCurrentEditRegNo = null;
   fpcCurrentProfileRegNo = null;
   fpcGoDashboard();
   fpcLoadStudents();
-}
-function switchCollege(){
-  hide('fpc-readiness-screen');
-  show('landing-screen');
-  fpcSelectedCollege = null;
-  FPC_STUDENTS = [];
-  $('landing-college-select').value = '';
-  document.querySelectorAll('#fpc-readiness-screen .fpc-avatar-dropdown.open').forEach(d => d.classList.remove('open'));
 }
 
 /* ── HIRE API (FOP / DSA / Aptitude / Overall come live from here) ── */
@@ -918,6 +796,11 @@ function fpcCollegeQueryParam(){
 }
 
 async function fpcLoadStudents(){
+  if(!fpcSelectedCollege){
+    fpcSetStatus(null, 'No college selected');
+    document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="9">Select a college above to load its data.</td></tr>`;
+    return;
+  }
   fpcSetStatus('loading', 'Loading roster + HIRE scores…');
   try{
     const url = `${FPC_SUPABASE_URL}/rest/v1/student_monitor_view?select=*${fpcCollegeQueryParam()}&order=s_no.asc`;
@@ -976,11 +859,9 @@ function fpcShowView(id){
 }
 function fpcGoDashboard(){ fpcShowView('fpcViewDashboard'); fpcSetActiveNav('dashboard'); }
 function fpcGoStudents(){ fpcShowView('fpcViewStudents'); fpcSetActiveNav('students'); fpcRenderTable(); }
-function fpcGoReports(){ fpcShowView('fpcViewReports'); fpcSetActiveNav('reports'); fpcRenderReportsTable(); }
 function fpcGoBackFromProfile(){
   fpcShowView(fpcProfileReturnView);
   if(fpcProfileReturnView === 'fpcViewStudents'){ fpcSetActiveNav('students'); fpcRenderTable(); }
-  else if(fpcProfileReturnView === 'fpcViewReports'){ fpcSetActiveNav('reports'); fpcRenderReportsTable(); }
   else{ fpcSetActiveNav('dashboard'); }
 }
 
@@ -1083,11 +964,12 @@ function fpcLaneBar(value, colorClass, showPercent){
 }
 function fpcPopulateFilters(){
   const depts = [...new Set(FPC_STUDENTS.map(s=>s.department).filter(Boolean))];
-  [document.getElementById('fpcDeptFilter'), document.getElementById('fpcReportsDeptFilter')].forEach(sel=>{
-    if(!sel) return; const prev = sel.value;
+  const sel = document.getElementById('fpcDeptFilter');
+  if(sel){
+    const prev = sel.value;
     sel.innerHTML = '<option value="">All departments</option>' + depts.map(d=>`<option value="${d}">${d}</option>`).join('');
     sel.value = prev;
-  });
+  }
 }
 function fpcFilterSortStudents(qId, deptId, eligId, sortId){
   const q = document.getElementById(qId).value.trim().toLowerCase();
@@ -1128,29 +1010,14 @@ function fpcRenderTable(){
   document.getElementById('fpcTableBody').innerHTML = rows.length ? rows.map(fpcStudentRowHtml).join('')
     : `<tr class="loading-row"><td colspan="9">${FPC_STUDENTS.length ? 'No students match this filter.' : 'No students on file for this college yet.'}</td></tr>`;
 }
-function fpcRenderReportsSummary(){
-  const total = FPC_STUDENTS.length;
-  const eligible = FPC_STUDENTS.filter(s=>s.eligibility_status && s.eligibility_status.toLowerCase()==='eligible').length;
-  const hireVals = FPC_STUDENTS.map(s=>fpcFmt(s.hire_overall)).filter(v=>v!==null);
-  const avgHire = hireVals.length ? (hireVals.reduce((a,b)=>a+b,0)/hireVals.length) : null;
-  const nqtVals = FPC_STUDENTS.map(s=>fpcFmt(s.nqt_overall)).filter(v=>v!==null);
-  const avgNqt = nqtVals.length ? (nqtVals.reduce((a,b)=>a+b,0)/nqtVals.length) : null;
-  const belowLine = FPC_STUDENTS.filter(s=>{const v=fpcFmt(s.hire_overall); return v!==null && v<35;}).length;
-  const cards = [ {lbl:'Cohort size', val:total}, {lbl:'Eligible', val:`${eligible} (${total?Math.round(eligible/total*100):0}%)`},
-    {lbl:'Avg HIRE overall', val: avgHire!==null? avgHire.toFixed(1):'—'}, {lbl:'Avg NQT overall', val: avgNqt!==null? avgNqt.toFixed(1)+'%':'—'} ];
-  document.getElementById('fpcReportsSummary').innerHTML = cards.map(c=>`<div class="rsum-card"><div class="rs-lbl">${c.lbl}</div><div class="rs-val">${c.val}</div></div>`).join('')
-    + (belowLine>0 ? `<div class="rsum-card" style="border-color:#EFC1BA;"><div class="rs-lbl" style="color:#8E332B;">Below readiness line</div><div class="rs-val" style="color:#C6493E;">${belowLine}</div></div>` : '');
-}
-function fpcRenderReportsTable(){
-  fpcRenderReportsSummary();
-  const rows = fpcFilterSortStudents('fpcReportsSearchBox','fpcReportsDeptFilter','fpcReportsEligFilter','fpcReportsSortSelect');
-  document.getElementById('fpcReportsRowCount').textContent = `${rows.length} of ${FPC_STUDENTS.length} students`;
-  document.getElementById('fpcReportsTableBody').innerHTML = rows.length ? rows.map(fpcStudentRowHtml).join('')
-    : `<tr class="loading-row"><td colspan="9">${FPC_STUDENTS.length ? 'No students match this filter.' : 'No students on file for this college yet.'}</td></tr>`;
+function fpcRenderCollegeBarStats(){
+  document.getElementById('fcbStudentsCount').textContent = FPC_STUDENTS.length;
+  const streams = new Set(FPC_STUDENTS.map(s=>s.department).filter(Boolean));
+  document.getElementById('fcbStreamsCount').textContent = streams.size;
 }
 function fpcRenderAll(){
   fpcRenderHero(); fpcRenderHireChart(); fpcRenderNqtPanel(); fpcRenderFlagged(); fpcRenderEligChips();
-  fpcPopulateFilters(); fpcRenderTable(); fpcRenderReportsTable();
+  fpcPopulateFilters(); fpcRenderTable(); fpcRenderCollegeBarStats();
 }
 
 function fpcMetricBadge(v){
@@ -1160,7 +1027,6 @@ function fpcMetricBadge(v){
   return `<span class="metric-badge risk">At risk</span>`;
 }
 function fpcCurrentProfileList(){
-  if(fpcProfileReturnView === 'fpcViewReports') return fpcFilterSortStudents('fpcReportsSearchBox','fpcReportsDeptFilter','fpcReportsEligFilter','fpcReportsSortSelect');
   if(fpcProfileReturnView === 'fpcViewStudents') return fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect');
   return FPC_STUDENTS;
 }
@@ -1561,6 +1427,13 @@ function fpcOpenAddStudentModal(){
   document.getElementById('fpcModalCard').classList.add('editing');
   document.getElementById('fpcModalOverlay').classList.add('open');
 }
+
+/* ── Boot ── */
+fpcPopulateCollegeSelect();
+document.getElementById('fcbStudentsCount').textContent = '—';
+document.getElementById('fcbStreamsCount').textContent = '—';
+fpcSetStatus(null, 'No college selected');
+document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="9">Select a college above to load its data.</td></tr>`;
 </script>
 </body>
 </html>
