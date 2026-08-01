@@ -1188,11 +1188,8 @@ function fpcCertDef(label, kind, url){
 function fpcRenderCertificates(s){
   const defs = [
     fpcCertDef('EF SET Certificate', 'efset', s.efset_certificate_url),
-    fpcCertDef('Resume', 'resume', s.resume_url),
-    fpcCertDef('GitHub Profile', 'github', s.github_url),
-    fpcCertDef('LinkedIn Profile', 'linkedin', s.linkedin_url),
   ];
-  const iconFor = { efset:'🏅', resume:'📄', github:'💻', linkedin:'🔗' };
+  const iconFor = { efset:'🏅' };
   return defs.map(d=>{
     const has = d.url && /^https?:\/\//i.test(d.url.trim());
     const fileKind = has ? fpcCertKind(d.url) : null;
