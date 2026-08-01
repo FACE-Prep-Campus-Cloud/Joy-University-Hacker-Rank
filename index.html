@@ -419,6 +419,13 @@ button, input, select, textarea { font-family: inherit; }
 #fpc-readiness-screen .campus-card .cc-stream-tag{ font-size:11px; font-weight:600; background:var(--fpc-card-soft); border:1px solid var(--fpc-line); color:var(--fpc-olive-deep); padding:4px 10px; border-radius:100px; }
 #fpc-readiness-screen .campus-card .cc-enter{ margin-top:auto; display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:700; color:var(--fpc-olive-deep); }
 #fpc-readiness-screen .campus-empty{ grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--fpc-ink-soft); }
+
+/* Rebuilt profile bio — meta chip row instead of a run-on sentence */
+#fpc-readiness-screen .p-meta-row{ position:relative; z-index:1; display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; max-width:460px; }
+#fpc-readiness-screen .p-meta-chip{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); border-radius:100px; padding:6px 12px; font-size:12px; }
+#fpc-readiness-screen .p-meta-chip .pmc-lbl{ opacity:.75; font-weight:600; }
+#fpc-readiness-screen .p-meta-chip .pmc-val{ font-weight:700; }
+#fpc-readiness-screen .p-meta-chip.warn{ background:rgba(217,138,61,.28); border-color:rgba(217,138,61,.5); }
 </style>
 </head>
 <body>
@@ -534,7 +541,7 @@ button, input, select, textarea { font-family: inherit; }
         <div>
           <h2 id="fpcPName">—</h2>
           <div class="p-loc">📍 <span id="fpcPLoc">—</span></div>
-          <div class="p-bio" id="fpcPBio">—</div>
+          <div class="p-meta-row" id="fpcPBio"></div>
         </div>
       </div>
       <div class="profile-banner-links">
@@ -1036,12 +1043,6 @@ function fpcRenderAll(){
   fpcPopulateFilters(); fpcRenderTable();
 }
 
-function fpcMetricBadge(v){
-  if(v===null) return `<span class="metric-badge na">Pending</span>`;
-  if(v>=60) return `<span class="metric-badge ok">On track</span>`;
-  if(v>=35) return `<span class="metric-badge warn">Watch</span>`;
-  return `<span class="metric-badge risk">At risk</span>`;
-}
 function fpcCurrentProfileList(){
   return fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect');
 }
@@ -1062,10 +1063,10 @@ function fpcStepProfile(dir){
 }
 function fpcRenderScoreBreakdown(s){
   const hireItems = [
-    ['FOP', s.hire_fop, ''],
-    ['DSA', s.hire_dsa, ''],
-    ['Aptitude', s.hire_aptitude, ''],
-    ['Overall', s.hire_overall, '']
+    ['FOP', s.hire_fop, '%'],
+    ['DSA', s.hire_dsa, '%'],
+    ['Aptitude', s.hire_aptitude, '%'],
+    ['Overall', s.hire_overall, '%']
   ];
   const nqtItems = [
     ['Verbal Ability', s.nqt_verbal_ability, '%'],
@@ -1078,7 +1079,7 @@ function fpcRenderScoreBreakdown(s){
   const renderGroup = (title, items) => {
     const rows = items.map(([label,val,suffix])=>{
       const v = fpcFmt(val);
-      return `<div class="sb-row"><span class="sb-label">${label}</span><span class="sb-value mono">${v!==null? v+suffix : '—'}</span>${fpcMetricBadge(v)}</div>`;
+      return `<div class="sb-row"><span class="sb-label">${label}</span><span class="sb-value mono">${v!==null? v+suffix : '—'}</span></div>`;
     }).join('');
     return `<div class="sb-group"><div class="sb-group-title">${title}</div>${rows}</div>`;
   };
@@ -1092,17 +1093,29 @@ function fpcViewProfile(regNo){
   document.getElementById('fpcPAvatar').innerHTML = fpcAvatarImgHtml(s.student_name);
   document.getElementById('fpcPName').textContent = s.student_name || '—';
   document.getElementById('fpcPLoc').textContent = `${s.department || '—'} · ${s.registration_number || '—'}`;
-  document.getElementById('fpcPBio').textContent = `${s.email || 'Email not on file'}. Communication level: ${s.communication_skill_level || 'not assessed'}. ${s.current_arrears>0 ? s.current_arrears+' current arrear(s) on record.' : 'No current arrears.'}`;
   document.getElementById('fpcPHireOverall').textContent = fpcFmt(s.hire_overall)!==null ? fpcFmt(s.hire_overall) : '—';
   document.getElementById('fpcPNqtOverall').textContent = fpcFmt(s.nqt_overall)!==null ? fpcFmt(s.nqt_overall)+'%' : '—';
   document.getElementById('fpcPNqtDesc').textContent = fpcFmt(s.nqt_assessment_count)!==null ? `Based on ${s.nqt_assessment_count} assessment round(s).` : 'Average across all NQT assessment rounds.';
   document.getElementById('fpcPScoreBreakdown').innerHTML = fpcRenderScoreBreakdown(s);
+  document.getElementById('fpcPBio').innerHTML = fpcBioChips(s);
   const details = [ ['10th mark', fpcPctTextSafe(s.tenth_mark)], ['12th mark', fpcPctTextSafe(s.twelfth_mark)], ['UG degree %', fpcPctTextSafe(s.ug_percentage)],
     ['PG degree %', fpcPctTextSafe(s.pg_percentage)], ['Current arrears', fpcNumTextSafe(s.current_arrears)], ['History of arrears', fpcNumTextSafe(s.history_of_arrears)] ];
   document.getElementById('fpcPProfileGrid').innerHTML = details.map(([label,val])=>`<div class="detail-item"><div class="d-label">${label}</div><div class="d-val">${val}</div></div>`).join('');
   document.getElementById('fpcPLinks').innerHTML = fpcLinkRow('LinkedIn', s.linkedin_url) + fpcLinkRow('Resume', s.resume_url) + fpcLinkRow('GitHub', s.github_url) + fpcLinkRow('EF SET', s.efset_certificate_url);
   fpcShowView('fpcViewProfile'); fpcSetActiveNav('');
   fpcUpdateProfileStepControls();
+}
+/* Structured chip row for the profile banner: email · communication level · arrears —
+   replaces the old run-on sentence with distinct, scannable fields. */
+function fpcBioChips(s){
+  const arrearsCount = fpcFmt(s.current_arrears) || 0;
+  const arrearsWarn = arrearsCount > 0;
+  const chips = [
+    { lbl:'Email', val: s.email || 'Not on file' },
+    { lbl:'Comm. level', val: s.communication_skill_level || 'Not assessed' },
+    { lbl:'Arrears', val: arrearsWarn ? `${arrearsCount} current` : 'None', warn: arrearsWarn }
+  ];
+  return chips.map(c => `<div class="p-meta-chip${c.warn?' warn':''}"><span class="pmc-lbl">${c.lbl}:</span><span class="pmc-val">${escHTML(c.val)}</span></div>`).join('');
 }
 function fpcPctTextSafe(v){ const n=fpcFmt(v); return n===null?'—':`${n}%`; }
 function fpcNumTextSafe(v){ const n=fpcFmt(v); return n===null?'—':`${n}`; }
@@ -1135,10 +1148,10 @@ function fpcOpenModal(regNo, startInEdit){
   document.getElementById('fpc_mTwelfth').textContent = fpcPctText(s.twelfth_mark);
   document.getElementById('fpc_mUg').textContent = fpcPctText(s.ug_percentage);
   document.getElementById('fpc_mPg').textContent = fpcPctText(s.pg_percentage);
-  document.getElementById('fpc_mFop').textContent = s.hire_matched ? fpcNumText(s.hire_fop) : 'No API match';
-  document.getElementById('fpc_mDsa').textContent = s.hire_matched ? fpcNumText(s.hire_dsa) : 'No API match';
-  document.getElementById('fpc_mAptitude').textContent = s.hire_matched ? fpcNumText(s.hire_aptitude) : 'No API match';
-  document.getElementById('fpc_mHireOverall').textContent = s.hire_matched ? fpcNumText(s.hire_overall) : 'No API match';
+  document.getElementById('fpc_mFop').textContent = s.hire_matched ? fpcPctText(s.hire_fop) : 'No API match';
+  document.getElementById('fpc_mDsa').textContent = s.hire_matched ? fpcPctText(s.hire_dsa) : 'No API match';
+  document.getElementById('fpc_mAptitude').textContent = s.hire_matched ? fpcPctText(s.hire_aptitude) : 'No API match';
+  document.getElementById('fpc_mHireOverall').textContent = s.hire_matched ? fpcPctText(s.hire_overall) : 'No API match';
   document.getElementById('fpc_mNqtCount').textContent = fpcNumText(s.nqt_assessment_count);
   document.getElementById('fpc_mVerbal').textContent = fpcPctText(s.nqt_verbal_ability);
   document.getElementById('fpc_mNumerical').textContent = fpcPctText(s.nqt_numerical_ability);
