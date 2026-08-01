@@ -1131,15 +1131,14 @@ function fpcRenderScoreBreakdown(s){
   const hireItems = [
     ['FOP', s.hire_fop, '%'],
     ['DSA', s.hire_dsa, '%'],
-    ['Aptitude', s.hire_aptitude, '%'],
-    ['Overall', s.hire_overall, '']
+    ['Aptitude', s.hire_aptitude, '%']
   ];
 
-  // Values that go into the average
-  const verbal   = fpcFmt(s.nqt_verbal_ability);
+  // Values that go into the average (kept for calculation, not shown as separate rows)
+  const verbal    = fpcFmt(s.nqt_verbal_ability);
   const numerical = fpcFmt(s.nqt_numerical_ability);
   const reasoning = fpcFmt(s.nqt_reasoning_ability);
-  const advQuant   = fpcFmt(s.nqt_advanced_quant_reasoning);
+  const advQuant  = fpcFmt(s.nqt_advanced_quant_reasoning);
 
   // Only average the values that actually exist, so a missing score
   // doesn't silently drag the average down to zero
@@ -1149,13 +1148,8 @@ function fpcRenderScoreBreakdown(s){
     : null;
 
   const nqtItems = [
-    ['Verbal Ability', verbal, '%'],
-    ['Numerical Ability', numerical, '%'],
-    ['Reasoning Ability', reasoning, '%'],
-    ['Adv. Quant Reasoning', advQuant, '%'],
-    ['Average', average !== null ? Math.round(average * 100) / 100 : null, '%'],   // ← new row
-    ['Coding', s.nqt_coding, '%'],
-    ['Overall', s.nqt_overall, '%']
+    ['Average', average !== null ? Math.round(average * 100) / 100 : null, '%'],
+    ['Coding', s.nqt_coding, '%']
   ];
 
   const renderGroup = (title, items) => {
@@ -1166,8 +1160,7 @@ function fpcRenderScoreBreakdown(s){
     return `<div class="sb-group"><div class="sb-group-title">${title}</div>${rows}</div>`;
   };
   return renderGroup('HIRE', hireItems) + renderGroup('FPC NQT', nqtItems);
-}
-/* ── NEW: Certificates / documents grid for the profile view ──
+}/* ── NEW: Certificates / documents grid for the profile view ──
    Renders one card per document-type link on the student record.
    Cards for links that aren't present still show, greyed out, so the
    grid layout stays stable and it's obvious what's missing. Clicking a
