@@ -1134,14 +1134,30 @@ function fpcRenderScoreBreakdown(s){
     ['Aptitude', s.hire_aptitude, '%'],
     ['Overall', s.hire_overall, '']
   ];
+
+  // Values that go into the average
+  const verbal   = fpcFmt(s.nqt_verbal_ability);
+  const numerical = fpcFmt(s.nqt_numerical_ability);
+  const reasoning = fpcFmt(s.nqt_reasoning_ability);
+  const advQuant   = fpcFmt(s.nqt_advanced_quant_reasoning);
+
+  // Only average the values that actually exist, so a missing score
+  // doesn't silently drag the average down to zero
+  const scoresToAverage = [verbal, numerical, reasoning, advQuant].filter(v => v !== null);
+  const average = scoresToAverage.length
+    ? scoresToAverage.reduce((sum, v) => sum + v, 0) / scoresToAverage.length
+    : null;
+
   const nqtItems = [
-    ['Verbal Ability', s.nqt_verbal_ability, '%'],
-    ['Numerical Ability', s.nqt_numerical_ability, '%'],
-    ['Reasoning Ability', s.nqt_reasoning_ability, '%'],
-    ['Adv. Quant Reasoning', s.nqt_advanced_quant_reasoning, '%'],
+    ['Verbal Ability', verbal, '%'],
+    ['Numerical Ability', numerical, '%'],
+    ['Reasoning Ability', reasoning, '%'],
+    ['Adv. Quant Reasoning', advQuant, '%'],
+    ['Average', average !== null ? Math.round(average * 100) / 100 : null, '%'],   // ← new row
     ['Coding', s.nqt_coding, '%'],
     ['Overall', s.nqt_overall, '%']
   ];
+
   const renderGroup = (title, items) => {
     const rows = items.map(([label,val,suffix])=>{
       const v = fpcFmt(val);
@@ -1151,7 +1167,6 @@ function fpcRenderScoreBreakdown(s){
   };
   return renderGroup('HIRE', hireItems) + renderGroup('FPC NQT', nqtItems);
 }
-
 /* ── NEW: Certificates / documents grid for the profile view ──
    Renders one card per document-type link on the student record.
    Cards for links that aren't present still show, greyed out, so the
