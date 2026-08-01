@@ -159,6 +159,46 @@ button, input, select, textarea { font-family: inherit; }
 #fpc-readiness-screen .fpc-filters input[type="text"]{flex:1;min-width:200px;}
 #fpc-readiness-screen .fpc-filters .count{margin-left:auto;color:var(--fpc-ink-soft);font-size:12.5px;}
 
+/* ── Student CARD GRID (replaces the old table) ── */
+#fpc-readiness-screen .fpc-client-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(272px,1fr)); gap:14px;
+}
+#fpc-readiness-screen .fpc-client-card{
+  position:relative; background:var(--fpc-card); border:1px solid var(--fpc-line); border-radius:18px;
+  padding:16px 16px 14px; box-shadow:var(--fpc-shadow); display:flex; flex-direction:column; gap:12px;
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+}
+#fpc-readiness-screen .fpc-client-card:hover{
+  transform:translateY(-2px); border-color:var(--fpc-lime-deep);
+  box-shadow:0 4px 8px rgba(59,69,34,.06), 0 18px 36px -16px rgba(59,69,34,.3);
+}
+#fpc-readiness-screen .fcc-top{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+#fpc-readiness-screen .fcc-id{display:flex; align-items:center; gap:11px; min-width:0;}
+#fpc-readiness-screen .fcc-avatar{width:42px; height:42px; border-radius:50%; flex-shrink:0; overflow:hidden; background:var(--fpc-card-soft); border:1px solid var(--fpc-line); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:var(--fpc-olive-deep);}
+#fpc-readiness-screen .fcc-avatar img{width:100%; height:100%; object-fit:cover; display:block;}
+#fpc-readiness-screen .fcc-name-wrap{min-width:0;}
+#fpc-readiness-screen .fcc-name{font-weight:700; font-size:14.5px; line-height:1.25; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#fpc-readiness-screen .fcc-name:hover{color:var(--fpc-olive-deep); text-decoration:underline;}
+#fpc-readiness-screen .fcc-email{display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--fpc-ink-soft); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#fpc-readiness-screen .fcc-email svg{flex-shrink:0; opacity:.7;}
+#fpc-readiness-screen .fcc-menu-wrap{position:relative; flex-shrink:0;}
+#fpc-readiness-screen .fcc-menu-btn{background:none; border:none; width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--fpc-ink-soft); cursor:pointer; font-size:16px; line-height:1;}
+#fpc-readiness-screen .fcc-menu-btn:hover{background:var(--fpc-card-soft); color:var(--fpc-ink);}
+#fpc-readiness-screen .fcc-dropdown{display:none; position:absolute; top:30px; right:0; min-width:150px; background:var(--fpc-card); border:1px solid var(--fpc-line); border-radius:12px; box-shadow:var(--fpc-shadow); padding:5px; z-index:20; flex-direction:column;}
+#fpc-readiness-screen .fcc-dropdown.open{display:flex;}
+#fpc-readiness-screen .fcc-dropdown button{background:none; border:none; text-align:left; padding:8px 10px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--fpc-ink); cursor:pointer; font-family:inherit;}
+#fpc-readiness-screen .fcc-dropdown button:hover{background:var(--fpc-card-soft);}
+#fpc-readiness-screen .fcc-badges{display:flex; flex-wrap:wrap; gap:6px;}
+#fpc-readiness-screen .fcc-badges .fpc-badge{font-size:10.5px; padding:2.5px 9px;}
+#fpc-readiness-screen .fcc-badges .fcc-score-chip{font-size:10.5px; font-weight:700; padding:2.5px 9px; border-radius:100px; font-family:'IBM Plex Mono',monospace; background:var(--fpc-card-soft); color:var(--fpc-ink-soft); border:1px solid var(--fpc-line);}
+#fpc-readiness-screen .fcc-bottom{display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:11px; border-top:1px dashed var(--fpc-line);}
+#fpc-readiness-screen .fcc-meta{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--fpc-ink-soft); min-width:0;}
+#fpc-readiness-screen .fcc-meta svg{flex-shrink:0; opacity:.7;}
+#fpc-readiness-screen .fcc-meta span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#fpc-readiness-screen .fcc-see{font-size:12px; font-weight:700; color:var(--fpc-olive-deep); text-decoration:none; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:3px;}
+#fpc-readiness-screen .fcc-see:hover{text-decoration:underline;}
+#fpc-readiness-screen .fpc-cards-empty{grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--fpc-ink-soft); background:var(--fpc-card); border:1px dashed var(--fpc-line); border-radius:var(--fpc-radius-lg);}
+
 #fpc-readiness-screen .fpc-table-wrap{background:var(--fpc-card);border:1px solid var(--fpc-line);border-radius:var(--fpc-radius-xl);overflow:hidden;box-shadow:var(--fpc-shadow);}
 #fpc-readiness-screen .fpc-table-wrap table{width:100%;border-collapse:collapse;font-size:13px;}
 #fpc-readiness-screen .fpc-table-wrap thead th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--fpc-ink-soft);padding:14px;border-bottom:1px solid var(--fpc-line);white-space:nowrap;font-weight:700;position:sticky;top:0;background:var(--fpc-card);}
@@ -434,7 +474,11 @@ button, input, select, textarea { font-family: inherit; }
       </div>
     </div>
     <div class="reports-head">
-      <div><h1>Students</h1><p>Browse the full roster — search or filter, then click a name to see a student's full readiness profile. This list is read-only.</p></div>
+      <div><h1>Students</h1><p>Browse the full roster — search or filter, then click a name or "See details" to open a student's full readiness profile.</p></div>
+      <div class="fpc-header-actions">
+        <button class="fpc-btn-soft" onclick="fpcOpenImportModal()">⬆ Import CSV</button>
+        <button class="fpc-btn-dark" onclick="fpcOpenAddStudentModal()">+ New Student</button>
+      </div>
     </div>
     <div class="fpc-filters">
       <input type="text" id="fpcSearchBox" placeholder="Search by name, reg. no. or email…" oninput="fpcRenderTable()">
@@ -452,13 +496,8 @@ button, input, select, textarea { font-family: inherit; }
       </select>
       <span class="count" id="fpcRowCount"></span>
     </div>
-    <div class="fpc-table-wrap">
-      <table>
-        <thead>
-          <tr><th>Student</th><th>Eligibility</th><th>Communication</th><th>FOP</th><th>DSA</th><th>Aptitude</th><th>HIRE Overall</th><th>FPC NQT Overall</th></tr>
-        </thead>
-        <tbody id="fpcTableBody"><tr class="loading-row"><td colspan="8">Loading students…</td></tr></tbody>
-      </table>
+    <div class="fpc-client-grid" id="fpcTableBody">
+      <div class="fpc-cards-empty">Loading students…</div>
     </div>
   </div>
 
@@ -811,6 +850,9 @@ document.addEventListener('click', e => {
   if(!e.target.closest('.fpc-avatar-menu-wrap')){
     document.querySelectorAll('#fpc-readiness-screen .fpc-avatar-dropdown.open').forEach(d => d.classList.remove('open'));
   }
+  if(!e.target.closest('.fcc-menu-wrap')){
+    document.querySelectorAll('#fpc-readiness-screen .fcc-dropdown.open').forEach(d => d.classList.remove('open'));
+  }
 });
 function fpcShowError(message){
   const banner = document.getElementById('fpcErrorBannerOverview');
@@ -818,8 +860,8 @@ function fpcShowError(message){
     banner.style.display = 'block';
     document.getElementById('fpcErrorDetailOverview').textContent = message;
   }
-  const tbody = document.getElementById('fpcTableBody');
-  if(tbody) tbody.innerHTML = `<tr class="loading-row"><td colspan="8">No data to display.</td></tr>`;
+  const grid = document.getElementById('fpcTableBody');
+  if(grid) grid.innerHTML = `<div class="fpc-cards-empty">No data to display.</div>`;
 }
 function fpcShowToast(message, isError){
   const t = document.getElementById('fpcToast');
@@ -837,7 +879,7 @@ function fpcCollegeQueryParam(){
 async function fpcLoadStudents(){
   if(!fpcSelectedCollege){
     fpcSetStatus(null, 'No college selected');
-    document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="8">Select a college above to load its data.</td></tr>`;
+    document.getElementById('fpcTableBody').innerHTML = `<div class="fpc-cards-empty">Select a campus above to load its data.</div>`;
     return;
   }
   fpcSetStatus('loading', 'Loading roster + HIRE scores…');
@@ -935,23 +977,52 @@ function fpcLaneBar(value, colorClass, showPercent){
   const suffix = showPercent === false ? '' : '%';
   return `<div class="lane"><div class="lane-track"><div class="lane-fill ${colorClass||''}" style="width:${pct}%; background:${fpcScoreColor(v)}"></div><div class="lane-threshold"></div></div><div class="lane-label"><strong>${v}${suffix}</strong></div></div>`;
 }
-function fpcStudentRowHtml(s){
+
+/* ── Student CARD renderer (Clients-style grid, not one row after another) ── */
+const FCC_MAIL_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>`;
+const FCC_ID_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h4M6 13h2"/><circle cx="15" cy="12" r="2"/></svg>`;
+
+function fpcScoreChip(label, val){
+  const v = fpcFmt(val);
+  return `<span class="fcc-score-chip">${label} ${v!==null ? v : '—'}</span>`;
+}
+function fpcStudentCardHtml(s){
   const isEligible = s.eligibility_status && s.eligibility_status.toLowerCase()==='eligible';
-  return `<tr>
-    <td><div class="student-cell"><div class="avatar-chip" style="width:32px;height:32px;">${fpcAvatarImgHtml(s.student_name)}</div>
-      <div><div class="student-name" onclick="fpcViewProfile('${s.registration_number}')">${s.student_name}</div>
-      <div class="student-sub mono">${s.registration_number||''} · ${s.department||''}</div></div></div></td>
-    <td><span class="fpc-badge ${isEligible?'eligible':'pending'}">${isEligible?'Eligible':'Pending'}</span>${s.current_arrears>0 ? `<span class="fpc-badge arrears">${s.current_arrears} arrear${s.current_arrears>1?'s':''}</span>`:''}</td>
-    <td>${s.communication_skill_level||'—'}</td>
-    <td>${fpcLaneBar(s.hire_fop, '', false)}</td><td>${fpcLaneBar(s.hire_dsa, '', false)}</td><td>${fpcLaneBar(s.hire_aptitude, '', false)}</td>
-    <td>${fpcLaneBar(s.hire_overall, '', false)}</td><td>${fpcLaneBar(s.nqt_overall,'teal')}</td>
-  </tr>`;
+  const regNoSafe = escHTML(s.registration_number||'');
+  return `<div class="fpc-client-card">
+    <div class="fcc-top">
+      <div class="fcc-id">
+        <div class="fcc-avatar">${fpcAvatarImgHtml(s.student_name)}</div>
+        <div class="fcc-name-wrap">
+          <div class="fcc-name" onclick="fpcViewProfile('${regNoSafe}')" title="${escHTML(s.student_name||'')}">${escHTML(s.student_name||'—')}</div>
+          <div class="fcc-email">${FCC_MAIL_ICON}<span>${escHTML(s.email||'No email on file')}</span></div>
+        </div>
+      </div>
+      <div class="fcc-menu-wrap">
+        <button class="fcc-menu-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle('open')">⋮</button>
+        <div class="fcc-dropdown">
+          <button onclick="event.stopPropagation(); fpcViewProfile('${regNoSafe}')">View profile</button>
+          <button onclick="event.stopPropagation(); fpcOpenModal('${regNoSafe}', true)">Edit details</button>
+        </div>
+      </div>
+    </div>
+    <div class="fcc-badges">
+      <span class="fpc-badge ${isEligible?'eligible':'pending'}">${isEligible?'Eligible':'Pending'}</span>
+      ${s.current_arrears>0 ? `<span class="fpc-badge arrears">${s.current_arrears} arrear${s.current_arrears>1?'s':''}</span>`:''}
+      ${fpcScoreChip('HIRE', s.hire_overall)}
+      ${fpcScoreChip('NQT', s.nqt_overall)}
+    </div>
+    <div class="fcc-bottom">
+      <div class="fcc-meta">${FCC_ID_ICON}<span>${escHTML(s.registration_number||'—')} · ${escHTML(s.department||'—')}</span></div>
+      <a class="fcc-see" onclick="fpcViewProfile('${regNoSafe}')">See details <span>→</span></a>
+    </div>
+  </div>`;
 }
 function fpcRenderTable(){
   const rows = fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect');
   document.getElementById('fpcRowCount').textContent = `${rows.length} of ${FPC_STUDENTS.length} students`;
-  document.getElementById('fpcTableBody').innerHTML = rows.length ? rows.map(fpcStudentRowHtml).join('')
-    : `<tr class="loading-row"><td colspan="8">${FPC_STUDENTS.length ? 'No students match this filter.' : 'No students on file for this college yet.'}</td></tr>`;
+  document.getElementById('fpcTableBody').innerHTML = rows.length ? rows.map(fpcStudentCardHtml).join('')
+    : `<div class="fpc-cards-empty">${FPC_STUDENTS.length ? 'No students match this filter.' : 'No students on file for this college yet.'}</div>`;
 }
 function fpcRenderAll(){
   fpcPopulateFilters(); fpcRenderTable();
@@ -1365,7 +1436,7 @@ function fpcOpenAddStudentModal(){
 
 /* ── Boot ── */
 fpcLoadCampusOverview();
-document.getElementById('fpcTableBody').innerHTML = `<tr class="loading-row"><td colspan="8">Select a campus from the overview page to load its data.</td></tr>`;
+document.getElementById('fpcTableBody').innerHTML = `<div class="fpc-cards-empty">Select a campus from the overview page to load its data.</div>`;
 
 /* ── Intro handshake splash: play the dotLottie animation once on canvas, then reveal the app ── */
 window.addEventListener('load', ()=>{
