@@ -1066,7 +1066,7 @@ function fpcRenderScoreBreakdown(s){
     ['FOP', s.hire_fop, '%'],
     ['DSA', s.hire_dsa, '%'],
     ['Aptitude', s.hire_aptitude, '%'],
-    ['Overall', s.hire_overall, '%']
+    ['Overall', s.hire_overall, '']
   ];
   const nqtItems = [
     ['Verbal Ability', s.nqt_verbal_ability, '%'],
@@ -1151,7 +1151,7 @@ function fpcOpenModal(regNo, startInEdit){
   document.getElementById('fpc_mFop').textContent = s.hire_matched ? fpcPctText(s.hire_fop) : 'No API match';
   document.getElementById('fpc_mDsa').textContent = s.hire_matched ? fpcPctText(s.hire_dsa) : 'No API match';
   document.getElementById('fpc_mAptitude').textContent = s.hire_matched ? fpcPctText(s.hire_aptitude) : 'No API match';
-  document.getElementById('fpc_mHireOverall').textContent = s.hire_matched ? fpcPctText(s.hire_overall) : 'No API match';
+  document.getElementById('fpc_mHireOverall').textContent = s.hire_matched ? fpcNumText(s.hire_overall) : 'No API match';
   document.getElementById('fpc_mNqtCount').textContent = fpcNumText(s.nqt_assessment_count);
   document.getElementById('fpc_mVerbal').textContent = fpcPctText(s.nqt_verbal_ability);
   document.getElementById('fpc_mNumerical').textContent = fpcPctText(s.nqt_numerical_ability);
