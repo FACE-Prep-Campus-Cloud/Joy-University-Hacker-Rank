@@ -1265,7 +1265,7 @@ function fpcBioChips(s){
   const arrearsWarn = arrearsCount > 0;
   const chips = [
     { lbl:'Email', val: s.email || 'Not on file' },
-    { lbl:'Comm. level', val: s.communication_skill_level || 'Not assessed' },
+    { lbl:'Communication level', val: s.communication_skill_level || 'Not assessed' },
     { lbl:'Arrears', val: arrearsWarn ? `${arrearsCount} current` : 'None', warn: arrearsWarn }
   ];
   return chips.map(c => `<div class="p-meta-chip${c.warn?' warn':''}"><span class="pmc-lbl">${c.lbl}:</span><span class="pmc-val">${escHTML(c.val)}</span></div>`).join('');
