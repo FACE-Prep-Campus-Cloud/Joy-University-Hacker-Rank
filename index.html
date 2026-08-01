@@ -1007,8 +1007,6 @@ function fpcStudentCardHtml(s){
       </div>
     </div>
     <div class="fcc-badges">
-      <span class="fpc-badge ${isEligible?'eligible':'pending'}">${isEligible?'Eligible':'Pending'}</span>
-      ${s.current_arrears>0 ? `<span class="fpc-badge arrears">${s.current_arrears} arrear${s.current_arrears>1?'s':''}</span>`:''}
       ${fpcScoreChip('HIRE', s.hire_overall)}
       ${fpcScoreChip('NQT', s.nqt_overall)}
     </div>
