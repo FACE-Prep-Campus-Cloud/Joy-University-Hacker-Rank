@@ -999,12 +999,12 @@ function fpcScoreChip(label, val){
 function fpcStudentCardHtml(s){
   const isEligible = s.eligibility_status && s.eligibility_status.toLowerCase()==='eligible';
   const regNoSafe = escHTML(s.registration_number||'');
-  return `<div class="fpc-client-card">
+  return `<div class="fpc-client-card" onclick="fpcViewProfile('${regNoSafe}')" style="cursor:pointer;">
     <div class="fcc-top">
       <div class="fcc-id">
         <div class="fcc-avatar">${fpcAvatarImgHtml(s.student_name)}</div>
         <div class="fcc-name-wrap">
-          <div class="fcc-name" onclick="fpcViewProfile('${regNoSafe}')" title="${escHTML(s.student_name||'')}">${escHTML(s.student_name||'—')}</div>
+          <div class="fcc-name" title="${escHTML(s.student_name||'')}">${escHTML(s.student_name||'—')}</div>
           <div class="fcc-email">${FCC_MAIL_ICON}<span>${escHTML(s.email||'No email on file')}</span></div>
         </div>
       </div>
