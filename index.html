@@ -291,13 +291,13 @@ button, input, select, textarea { font-family: inherit; }
 #fpc-readiness-screen .btn-ghost-light:hover{background:rgba(255,255,255,.26);}
 
 /* Profile links, relocated into the banner (right of the name/bio) */
-#fpc-readiness-screen .profile-banner-links{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;min-width:230px;max-width:300px;flex:1 1 260px;}
+#fpc-readiness-screen .profile-banner-links{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;min-width:220px;max-width:320px;flex:1 1 260px;}
 #fpc-readiness-screen .profile-banner-links .banner-links-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.72);font-weight:700;margin-bottom:2px;}
-#fpc-readiness-screen .profile-banner-links .modal-link{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;}
-#fpc-readiness-screen .profile-banner-links .modal-link:hover{background:rgba(255,255,255,.24);}
-#fpc-readiness-screen .profile-banner-links .modal-link .link-tag{background:rgba(255,255,255,.22);color:#fff;}
-#fpc-readiness-screen .profile-banner-links .modal-link.unavailable{color:rgba(255,255,255,.65);}
-
+#fpc-readiness-screen #fpcPLinks{display:flex;flex-wrap:wrap;gap:8px;}
+#fpc-readiness-screen .plink-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:100px;padding:8px 14px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;white-space:nowrap;}
+#fpc-readiness-screen .plink-pill:hover{background:rgba(255,255,255,.24);}
+#fpc-readiness-screen .plink-pill.is-missing{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.6);font-style:italic;cursor:default;}
+  
 #fpc-readiness-screen .profile-stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px;}
 @media (max-width:820px){#fpc-readiness-screen .profile-stats-row{grid-template-columns:1fr;}}
 #fpc-readiness-screen .pstat-card{background:var(--fpc-card);border:1px solid var(--fpc-line);border-radius:var(--fpc-radius-lg);padding:16px 18px;box-shadow:var(--fpc-shadow);}
@@ -319,7 +319,7 @@ button, input, select, textarea { font-family: inherit; }
 #fpc-readiness-screen .donut-legend-row .lbl{flex:1;color:var(--fpc-ink-soft);}
 #fpc-readiness-screen .donut-legend-row .val{font-weight:700;font-family:'IBM Plex Mono',monospace;}
 
-/* Score breakdown — plain values, no chart */
+/*  — plain values, no chart */
 #fpc-readiness-screen .score-breakdown-groups{display:flex;flex-direction:column;gap:16px;}
 #fpc-readiness-screen .sb-group-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--fpc-ink-soft);font-weight:700;margin-bottom:8px;}
 #fpc-readiness-screen .sb-group{padding-bottom:2px;}
@@ -1245,8 +1245,11 @@ function fpcViewProfile(regNo){
   const details = [ ['10th mark', fpcPctTextSafe(s.tenth_mark)], ['12th mark', fpcPctTextSafe(s.twelfth_mark)], ['UG degree %', fpcPctTextSafe(s.ug_percentage)],
     ['PG degree %', fpcPctTextSafe(s.pg_percentage)], ['Current arrears', fpcNumTextSafe(s.current_arrears)], ['History of arrears', fpcNumTextSafe(s.history_of_arrears)] ];
   document.getElementById('fpcPProfileGrid').innerHTML = details.map(([label,val])=>`<div class="detail-item"><div class="d-label">${label}</div><div class="d-val">${val}</div></div>`).join('');
-  document.getElementById('fpcPLinks').innerHTML = fpcLinkRow('LinkedIn', s.linkedin_url) + fpcLinkRow('Resume', s.resume_url) + fpcLinkRow('GitHub', s.github_url) + fpcLinkRow('EF SET', s.efset_certificate_url);
-  document.getElementById('fpcPCertGrid').innerHTML = fpcRenderCertificates(s);
+document.getElementById('fpcPLinks').innerHTML =
+  fpcLinkPill('LinkedIn', '🔗', s.linkedin_url, 'link') +
+  fpcLinkPill('Resume', '📄', s.resume_url, 'doc') +
+  fpcLinkPill('GitHub', '💻', s.github_url, 'link') +
+  fpcLinkPill('EF SET', '🏅', s.efset_certificate_url, 'doc');  document.getElementById('fpcPCertGrid').innerHTML = fpcRenderCertificates(s);
   fpcShowView('fpcViewProfile'); fpcSetActiveNav('');
   fpcUpdateProfileStepControls();
 }
@@ -1270,6 +1273,18 @@ function fpcLinkRow(tag, url){
   const valid = url && /^https?:\/\//i.test(url.trim());
   if(!valid) return `<div class="modal-link unavailable modal-link-row"><span class="link-tag">${tag}</span> ${url ? url : 'Not provided'}</div>`;
   return `<a class="modal-link modal-link-row" href="${url}" target="_blank" rel="noopener"><span class="link-tag">${tag}</span> ${url}</a>`;
+}
+  function fpcLinkPill(label, icon, url, mode){
+  const valid = url && /^https?:\/\//i.test(url.trim());
+  if(!valid){
+    return `<span class="plink-pill is-missing">${icon} ${escHTML(label)} — none</span>`;
+  }
+  if(mode === 'doc'){
+    const safeUrl = escHTML(url).replace(/'/g,"\\'");
+    const safeLabel = escHTML(label).replace(/'/g,"\\'");
+    return `<span class="plink-pill" onclick="fpcOpenCertModal('${safeUrl}','${safeLabel}')">${icon} ${escHTML(label)}</span>`;
+  }
+  return `<a class="plink-pill" href="${escHTML(url)}" target="_blank" rel="noopener">${icon} ${escHTML(label)}</a>`;
 }
 function fpcSetInputVal(id, v){ document.getElementById(id).value = (v===null || v===undefined) ? '' : v; }
 
