@@ -426,6 +426,51 @@ button, input, select, textarea { font-family: inherit; }
 #fpc-readiness-screen .p-meta-chip .pmc-lbl{ opacity:.75; font-weight:600; }
 #fpc-readiness-screen .p-meta-chip .pmc-val{ font-weight:700; }
 #fpc-readiness-screen .p-meta-chip.warn{ background:rgba(217,138,61,.28); border-color:rgba(217,138,61,.5); }
+
+/* ══════════════════════════════════════════════════════════
+   NEW: HIRE eligibility gauge (adds context around the raw
+   HIRE Overall number, which is a composite score, not a %)
+   ══════════════════════════════════════════════════════════ */
+#fpc-readiness-screen .pstat-sub{ display:flex; align-items:center; gap:6px; margin-top:8px; }
+#fpc-readiness-screen .pstat-sub .metric-badge{ flex-shrink:0; }
+#fpc-readiness-screen .pstat-sub .pstat-sub-txt{ font-size:11px; color:var(--fpc-ink-soft); }
+
+/* ══════════════════════════════════════════════════════════
+   NEW: CERTIFICATES grid + inline certificate viewer
+   ══════════════════════════════════════════════════════════ */
+#fpc-readiness-screen .cert-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; }
+#fpc-readiness-screen .cert-card{
+  position:relative; background:var(--fpc-card-soft); border:1px solid var(--fpc-line); border-radius:16px;
+  padding:16px; display:flex; flex-direction:column; gap:12px; cursor:pointer;
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease;
+}
+#fpc-readiness-screen .cert-card:hover{ transform:translateY(-2px); border-color:var(--fpc-lime-deep); background:var(--fpc-card); box-shadow:0 4px 8px rgba(59,69,34,.06), 0 16px 30px -16px rgba(59,69,34,.3); }
+#fpc-readiness-screen .cert-card.is-missing{ cursor:default; opacity:.55; }
+#fpc-readiness-screen .cert-card.is-missing:hover{ transform:none; box-shadow:none; border-color:var(--fpc-line); background:var(--fpc-card-soft); }
+#fpc-readiness-screen .cert-thumb{
+  height:96px; border-radius:11px; background:var(--fpc-card); border:1px solid var(--fpc-line);
+  display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;
+}
+#fpc-readiness-screen .cert-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+#fpc-readiness-screen .cert-thumb .cert-icn{ font-size:30px; opacity:.55; }
+#fpc-readiness-screen .cert-thumb .cert-kind-tag{ position:absolute; top:7px; right:7px; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; background:rgba(28,33,22,.72); color:#fff; padding:2px 7px; border-radius:100px; }
+#fpc-readiness-screen .cert-name{ font-size:13px; font-weight:700; line-height:1.3; }
+#fpc-readiness-screen .cert-meta{ font-size:11px; color:var(--fpc-ink-soft); }
+#fpc-readiness-screen .cert-view-row{ display:flex; align-items:center; justify-content:space-between; font-size:11.5px; font-weight:700; color:var(--fpc-olive-deep); }
+#fpc-readiness-screen .cert-card.is-missing .cert-view-row{ color:var(--fpc-ink-soft); font-weight:600; }
+
+#fpcCertModalOverlay{ display:none; position:fixed; inset:0; background:rgba(20,24,15,.72); align-items:center; justify-content:center; z-index:120; padding:26px; }
+#fpcCertModalOverlay.open{ display:flex; }
+#fpcCertModalCard{ background:#fff; border-radius:22px; width:100%; max-width:880px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,.4); font-family:'Inter',system-ui,sans-serif; }
+#fpcCertModalCard .cert-modal-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px; border-bottom:1px solid #E8ECD6; }
+#fpcCertModalCard .cert-modal-head h3{ font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:700; color:#1C2116; }
+#fpcCertModalCard .cert-modal-head .cmh-sub{ font-size:11.5px; color:#6E7660; margin-top:2px; }
+#fpcCertModalCard .cert-modal-close{ background:#F7F9EC; border:none; width:32px; height:32px; border-radius:50%; color:#6E7660; font-size:17px; cursor:pointer; flex-shrink:0; line-height:1; }
+#fpcCertModalCard .cert-modal-close:hover{ background:#E8ECD6; color:#1C2116; }
+#fpcCertModalCard .cert-modal-body{ flex:1; min-height:0; background:#F1F3E9; display:flex; align-items:center; justify-content:center; overflow:auto; padding:0; }
+#fpcCertModalCard .cert-modal-body img{ max-width:100%; max-height:80vh; display:block; margin:auto; }
+#fpcCertModalCard .cert-modal-body iframe{ width:100%; height:78vh; border:none; display:block; }
+#fpcCertModalCard .cert-modal-fallback{ padding:40px 30px; text-align:center; color:#6E7660; font-size:13px; line-height:1.6; max-width:380px; }
 </style>
 </head>
 <body>
@@ -554,6 +599,7 @@ button, input, select, textarea { font-family: inherit; }
         <div class="pstat-top"><div class="pstat-icn">📊</div><div><div class="pstat-num" id="fpcPHireOverall">—</div><div class="pstat-tag">HIRE Overall</div></div></div>
         <div class="pstat-title">HIRE Score</div>
         <div class="pstat-desc">Combined FOP, DSA &amp; Aptitude readiness score.</div>
+        <div class="pstat-sub" id="fpcPHireSub"></div>
       </div>
       <div class="pstat-card">
         <div class="pstat-top"><div class="pstat-icn">🧠</div><div><div class="pstat-num" id="fpcPNqtOverall">—</div><div class="pstat-tag">NQT Overall</div></div></div>
@@ -570,6 +616,12 @@ button, input, select, textarea { font-family: inherit; }
         <div class="panel-head"><h2>Score Breakdown</h2><span>HIRE &amp; FPC NQT</span></div>
         <div class="score-breakdown-groups" id="fpcPScoreBreakdown"></div>
       </div>
+    </div>
+
+    <!-- NEW: Certificates & documents grid — click a card to preview inline, nothing downloads or opens a new tab -->
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-head"><h2>Certificates &amp; Documents</h2><span>Click a card to preview</span></div>
+      <div class="cert-grid" id="fpcPCertGrid"></div>
     </div>
   </div>
 
@@ -689,6 +741,20 @@ button, input, select, textarea { font-family: inherit; }
           <button class="fpc-btn-soft" onclick="fpcCloseImportModal()">Cancel</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- NEW: Certificate / document inline viewer — opens over everything, never downloads or navigates away -->
+  <div id="fpcCertModalOverlay" onclick="if(event.target===this) fpcCloseCertModal()">
+    <div id="fpcCertModalCard">
+      <div class="cert-modal-head">
+        <div>
+          <h3 id="fpcCertModalTitle">—</h3>
+          <div class="cmh-sub" id="fpcCertModalSub">—</div>
+        </div>
+        <button class="cert-modal-close" onclick="fpcCloseCertModal()">✕</button>
+      </div>
+      <div class="cert-modal-body" id="fpcCertModalBody"></div>
     </div>
   </div>
 
@@ -1085,6 +1151,78 @@ function fpcRenderScoreBreakdown(s){
   };
   return renderGroup('HIRE', hireItems) + renderGroup('FPC NQT', nqtItems);
 }
+
+/* ── NEW: Certificates / documents grid for the profile view ──
+   Renders one card per document-type link on the student record.
+   Cards for links that aren't present still show, greyed out, so the
+   grid layout stays stable and it's obvious what's missing. Clicking a
+   present card opens the in-page viewer (fpcOpenCertModal) — nothing
+   downloads and nothing opens a new tab. */
+function fpcCertKind(url){
+  if(!url) return null;
+  const clean = url.split('?')[0].toLowerCase();
+  if(/\.(pdf)$/.test(clean)) return 'pdf';
+  if(/\.(png|jpe?g|gif|webp|svg)$/.test(clean)) return 'image';
+  if(/drive\.google\.com/.test(url)) return 'gdrive';
+  return 'other';
+}
+function fpcCertEmbedUrl(url, kind){
+  if(kind === 'gdrive'){
+    const m = url.match(/\/d\/([^/]+)/) || url.match(/[?&]id=([^&]+)/);
+    if(m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+    return url;
+  }
+  return url;
+}
+function fpcCertDef(label, kind, url){
+  return { label, kind, url: url || null };
+}
+function fpcRenderCertificates(s){
+  const defs = [
+    fpcCertDef('EF SET Certificate', 'efset', s.efset_certificate_url),
+    fpcCertDef('Resume', 'resume', s.resume_url),
+    fpcCertDef('GitHub Profile', 'github', s.github_url),
+    fpcCertDef('LinkedIn Profile', 'linkedin', s.linkedin_url),
+  ];
+  const iconFor = { efset:'🏅', resume:'📄', github:'💻', linkedin:'🔗' };
+  return defs.map(d=>{
+    const has = d.url && /^https?:\/\//i.test(d.url.trim());
+    const fileKind = has ? fpcCertKind(d.url) : null;
+    const kindTag = fileKind === 'pdf' ? 'PDF' : fileKind === 'image' ? 'Image' : fileKind === 'gdrive' ? 'Drive' : has ? 'Link' : '';
+    const thumb = (has && fileKind === 'image')
+      ? `<img src="${d.url}" alt="${escHTML(d.label)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class__ERR__>${iconFor[d.kind]}</span>'">`
+      : `<span class="cert-icn">${iconFor[d.kind]}</span>`;
+    const clickAttr = has ? `onclick="fpcOpenCertModal('${escHTML(d.url).replace(/'/g,"\\'")}','${escHTML(d.label).replace(/'/g,"\\'")}')"` : '';
+    return `<div class="cert-card${has?'':' is-missing'}" ${clickAttr}>
+      <div class="cert-thumb">${thumb}${kindTag?`<span class="cert-kind-tag">${kindTag}</span>`:''}</div>
+      <div>
+        <div class="cert-name">${escHTML(d.label)}</div>
+        <div class="cert-meta">${has ? 'On file' : 'Not provided'}</div>
+      </div>
+      <div class="cert-view-row"><span>${has ? 'Preview' : 'No document'}</span><span>${has ? '👁' : ''}</span></div>
+    </div>`;
+  }).join('').replace(/class__ERR__/g,'class="cert-icn"');
+}
+function fpcOpenCertModal(url, label){
+  const kind = fpcCertKind(url);
+  const embedUrl = fpcCertEmbedUrl(url, kind);
+  const body = document.getElementById('fpcCertModalBody');
+  document.getElementById('fpcCertModalTitle').textContent = label;
+  document.getElementById('fpcCertModalSub').textContent = kind === 'image' ? 'Image preview' : (kind === 'pdf' || kind === 'gdrive') ? 'Document preview' : 'Preview';
+  if(kind === 'image'){
+    body.innerHTML = `<img src="${escHTML(url)}" alt="${escHTML(label)}">`;
+  } else if(kind === 'pdf' || kind === 'gdrive'){
+    body.innerHTML = `<iframe src="${escHTML(embedUrl)}" title="${escHTML(label)}"></iframe>`;
+  } else {
+    body.innerHTML = `<iframe src="${escHTML(embedUrl)}" title="${escHTML(label)}" onerror="this.style.display='none'"></iframe>`;
+  }
+  document.getElementById('fpcCertModalOverlay').classList.add('open');
+}
+function fpcCloseCertModal(){
+  document.getElementById('fpcCertModalOverlay').classList.remove('open');
+  document.getElementById('fpcCertModalBody').innerHTML = '';
+}
+
 function fpcViewProfile(regNo){
   const s = FPC_STUDENTS.find(x => x.registration_number === regNo);
   if(!s) return;
@@ -1098,10 +1236,17 @@ function fpcViewProfile(regNo){
   document.getElementById('fpcPNqtDesc').textContent = fpcFmt(s.nqt_assessment_count)!==null ? `Based on ${s.nqt_assessment_count} assessment round(s).` : 'Average across all NQT assessment rounds.';
   document.getElementById('fpcPScoreBreakdown').innerHTML = fpcRenderScoreBreakdown(s);
   document.getElementById('fpcPBio').innerHTML = fpcBioChips(s);
+  const hireSubEl = document.getElementById('fpcPHireSub');
+  if(hireSubEl){
+    hireSubEl.innerHTML = s.hire_matched
+      ? `<span class="metric-badge ${(fpcFmt(s.hire_overall)||0) >= 60 ? 'ok' : (fpcFmt(s.hire_overall)||0) >= 35 ? 'warn' : 'risk'}">${(fpcFmt(s.hire_overall)||0) >= 60 ? 'Strong' : (fpcFmt(s.hire_overall)||0) >= 35 ? 'Developing' : 'Needs work'}</span><span class="pstat-sub-txt">composite score, not a percentage</span>`
+      : `<span class="metric-badge na">No API match</span><span class="pstat-sub-txt">registration number not found in HIRE</span>`;
+  }
   const details = [ ['10th mark', fpcPctTextSafe(s.tenth_mark)], ['12th mark', fpcPctTextSafe(s.twelfth_mark)], ['UG degree %', fpcPctTextSafe(s.ug_percentage)],
     ['PG degree %', fpcPctTextSafe(s.pg_percentage)], ['Current arrears', fpcNumTextSafe(s.current_arrears)], ['History of arrears', fpcNumTextSafe(s.history_of_arrears)] ];
   document.getElementById('fpcPProfileGrid').innerHTML = details.map(([label,val])=>`<div class="detail-item"><div class="d-label">${label}</div><div class="d-val">${val}</div></div>`).join('');
   document.getElementById('fpcPLinks').innerHTML = fpcLinkRow('LinkedIn', s.linkedin_url) + fpcLinkRow('Resume', s.resume_url) + fpcLinkRow('GitHub', s.github_url) + fpcLinkRow('EF SET', s.efset_certificate_url);
+  document.getElementById('fpcPCertGrid').innerHTML = fpcRenderCertificates(s);
   fpcShowView('fpcViewProfile'); fpcSetActiveNav('');
   fpcUpdateProfileStepControls();
 }
@@ -1247,6 +1392,7 @@ async function fpcSaveEdit(){
 
 document.addEventListener('keydown', (e) => {
   if(e.key === 'Escape' && document.getElementById('fpcModalOverlay') && document.getElementById('fpcModalOverlay').classList.contains('open')) fpcCloseModal();
+  if(e.key === 'Escape' && document.getElementById('fpcCertModalOverlay') && document.getElementById('fpcCertModalOverlay').classList.contains('open')) fpcCloseCertModal();
 });
 
 /* ============================================================
