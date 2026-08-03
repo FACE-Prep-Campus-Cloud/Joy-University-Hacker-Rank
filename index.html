@@ -477,6 +477,48 @@ button, input, select, textarea { font-family: inherit; }
   #fpcStatusPillOverview{
   display: none !important;
 }
+
+/* ══════════════════════════════════════════════════════════
+   NEW: Score explainer strip — HIRE Score & FPC NQT
+   Short blurb by default, "See how it's calculated" expands
+   an in-place detailed breakdown. No navigation, no modal.
+   ══════════════════════════════════════════════════════════ */
+#fpc-readiness-screen .score-info-row{
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px;
+}
+@media (max-width:900px){ #fpc-readiness-screen .score-info-row{ grid-template-columns:1fr; } }
+#fpc-readiness-screen .score-info-card{
+  background:var(--fpc-card); border:1px solid var(--fpc-line); border-radius:var(--fpc-radius-lg);
+  padding:16px 18px; box-shadow:var(--fpc-shadow);
+}
+#fpc-readiness-screen .sic-top{ display:flex; align-items:flex-start; gap:12px; }
+#fpc-readiness-screen .sic-icn{
+  width:36px; height:36px; border-radius:11px; background:var(--fpc-card-soft); border:1px solid var(--fpc-line);
+  display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+}
+#fpc-readiness-screen .sic-title{ font-size:14px; font-weight:700; font-family:'Space Grotesk',sans-serif; }
+#fpc-readiness-screen .sic-short{ font-size:12px; color:var(--fpc-ink-soft); line-height:1.55; margin-top:4px; }
+#fpc-readiness-screen .sic-toggle{
+  display:inline-flex; align-items:center; gap:5px; background:none; border:none; cursor:pointer;
+  font-family:inherit; font-size:12px; font-weight:700; color:var(--fpc-olive-deep); padding:8px 0 0; margin-left:48px;
+}
+#fpc-readiness-screen .sic-toggle:hover{ text-decoration:underline; }
+#fpc-readiness-screen .sic-toggle .chev{ transition:transform .18s ease; display:inline-block; }
+#fpc-readiness-screen .sic-toggle.open .chev{ transform:rotate(180deg); }
+#fpc-readiness-screen .sic-detail{
+  display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--fpc-line);
+  font-size:12px; color:var(--fpc-ink); line-height:1.6;
+}
+#fpc-readiness-screen .sic-detail.open{ display:block; }
+#fpc-readiness-screen .sic-detail .sic-pillar{ margin-bottom:10px; }
+#fpc-readiness-screen .sic-detail .sic-pillar:last-child{ margin-bottom:0; }
+#fpc-readiness-screen .sic-detail .sic-pillar-head{ display:flex; justify-content:space-between; align-items:baseline; font-weight:700; margin-bottom:2px; }
+#fpc-readiness-screen .sic-detail .sic-pillar-head .pts{ font-family:'IBM Plex Mono',monospace; color:var(--fpc-olive-deep); font-weight:700; }
+#fpc-readiness-screen .sic-detail .sic-pillar-desc{ color:var(--fpc-ink-soft); font-size:11.5px; }
+#fpc-readiness-screen .sic-detail .sic-total{
+  margin-top:10px; padding-top:10px; border-top:1px solid var(--fpc-line); display:flex; justify-content:space-between;
+  font-weight:700; font-family:'Space Grotesk',sans-serif; font-size:13px;
+}
 </style>
 </head>
 <body>
@@ -557,6 +599,73 @@ button, input, select, textarea { font-family: inherit; }
         <button class="fpc-btn-dark" onclick="fpcOpenAddStudentModal()">+ New Student</button>
       </div>
     </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         NEW: Score explainer strip (HIRE Score + FPC NQT)
+         Short description shown by default; "See how it's
+         calculated" expands a detailed, in-place breakdown.
+         ══════════════════════════════════════════════════════ -->
+    <div class="score-info-row">
+      <div class="score-info-card">
+        <div class="sic-top">
+          <div class="sic-icn">✍️</div>
+          <div>
+            <div class="sic-title">HIRE Score</div>
+            <div class="sic-short">A composite employability score out of <strong>1000</strong>, combining academics, aptitude &amp; communication, technical skills, and industry validation into one number recruiters can compare across students.</div>
+          </div>
+        </div>
+        <button class="sic-toggle" onclick="fpcToggleScoreInfo(this,'sicHireDetail')">
+          <span class="chev">▾</span><span class="txt">See how it's calculated</span>
+        </button>
+        <div class="sic-detail" id="sicHireDetail">
+          <div class="sic-pillar">
+            <div class="sic-pillar-head"><span>Academic &amp; Regulatory</span><span class="pts">150 pts</span></div>
+            <div class="sic-pillar-desc">Xth / XIIth / UG-PG marks (100 pts) plus a clean arrears record — fewer current arrears and no history of arrears scores higher (50 pts).</div>
+          </div>
+          <div class="sic-pillar">
+            <div class="sic-pillar-head"><span>Cognitive &amp; Linguistic Proficiency</span><span class="pts">300 pts</span></div>
+            <div class="sic-pillar-desc">Aptitude — Quantitative, Logical Reasoning &amp; Verbal Ability (150 pts) — plus Communication — CEFR grammar and EF SET Listening / Speaking / Reading / Writing bands (150 pts).</div>
+          </div>
+          <div class="sic-pillar">
+            <div class="sic-pillar-head"><span>Technical Proficiency</span><span class="pts">400 pts</span></div>
+            <div class="sic-pillar-desc">LeetCode practice ranking (125 pts), FOP + DSA coding assessments (175 pts), hackathon / codeathon rounds (50 pts), and GitHub mini &amp; full-length projects (50 pts).</div>
+          </div>
+          <div class="sic-pillar">
+            <div class="sic-pillar-head"><span>Industry Validation</span><span class="pts">150 pts</span></div>
+            <div class="sic-pillar-desc">Recognized global certifications (100 pts) and other relevant certifications (50 pts). Coursera / Udemy / LinkedIn Learning-style certificates are not counted.</div>
+          </div>
+          <div class="sic-total"><span>Total</span><span>1000 pts</span></div>
+        </div>
+      </div>
+
+      <div class="score-info-card">
+        <div class="sic-top">
+          <div class="sic-icn">🧠</div>
+          <div>
+            <div class="sic-title">FPC NQT</div>
+            <div class="sic-short">FACE Prep National Qualifier Test — a placement-readiness assessment covering Aptitude and Coding, helping students see where they stand and what to improve before campus placements.</div>
+          </div>
+        </div>
+        <button class="sic-toggle" onclick="fpcToggleScoreInfo(this,'sicNqtDetail')">
+          <span class="chev">▾</span><span class="txt">See how it's calculated</span>
+        </button>
+        <div class="sic-detail" id="sicNqtDetail">
+          <div class="sic-pillar">
+            <div class="sic-pillar-head"><span>Aptitude Score</span></div>
+            <div class="sic-pillar-desc">The student's overall performance across the aptitude sections — Verbal Ability, Numerical Ability, Reasoning Ability, and Advanced Quantitative Ability — reflecting analytical thinking, problem-solving, and communication skills. Shown here as the average across whichever of these sections the student has completed.</div>
+          </div>
+          <div class="sic-pillar">
+            <div class="sic-pillar-head"><span>Coding Score</span></div>
+            <div class="sic-pillar-desc">The student's performance in the coding section of the assessment, measuring programming ability, logical thinking, and problem-solving by evaluating their submitted coding solutions.</div>
+          </div>
+          <div class="sic-pillar">
+            <div class="sic-pillar-head"><span>Overall</span></div>
+            <div class="sic-pillar-desc">A combined view of Aptitude and Coding performance across all NQT rounds the student has taken, used to track readiness improvement over time.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="fpc-filters">
       <input type="text" id="fpcSearchBox" placeholder="Search by name, reg. no. or email…" oninput="fpcRenderTable()">
       <select id="fpcDeptFilter" onchange="fpcRenderTable()"><option value="">All departments</option></select>
@@ -789,6 +898,17 @@ const $ = id => document.getElementById(id);
 const show = id => $(id).classList.remove('hidden');
 const hide = id => $(id).classList.add('hidden');
 function escHTML(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── NEW: Score explainer strip toggle (HIRE Score / FPC NQT) ── */
+function fpcToggleScoreInfo(btn, detailId){
+  const detail = document.getElementById(detailId);
+  if(!detail) return;
+  const willOpen = !detail.classList.contains('open');
+  detail.classList.toggle('open', willOpen);
+  btn.classList.toggle('open', willOpen);
+  const txt = btn.querySelector('.txt');
+  if(txt) txt.textContent = willOpen ? "Hide detailed calculation" : "See how it's calculated";
+}
 
 /* ── Campus overview (default landing view, no dropdown) ──
    Fetches every student row's college + department, groups them client
