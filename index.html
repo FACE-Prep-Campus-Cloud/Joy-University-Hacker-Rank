@@ -1056,8 +1056,11 @@ async function fpcLoadEligibleStudents(){
 
     document.getElementById('fpcEligibleCount').textContent = eligible.length;
 
-    tbody.innerHTML = eligible.length ? eligible.map(s => `
-      <tr>
+tbody.innerHTML = eligible.length ? eligible.map(s => {
+      const regSafe = escHTML(s.registration_number||'').replace(/'/g,"\\'");
+      const collegeSafe = escHTML(s.college||'').replace(/'/g,"\\'");
+      return `
+      <tr style="cursor:pointer;" onclick="fpcOpenEligibleProfile('${collegeSafe}','${regSafe}')">
         <td>${escHTML(s.student_name || '—')}</td>
         <td class="mono">${escHTML(s.registration_number || '—')}</td>
         <td>${escHTML(s.college || '—')}</td>
@@ -1066,11 +1069,17 @@ async function fpcLoadEligibleStudents(){
         <td>${fpcPctTextSafe(s.twelfth_mark)}</td>
         <td>${fpcPctTextSafe(s.ug_percentage)}</td>
         <td>${(s.pg_percentage !== null && s.pg_percentage !== undefined) ? fpcPctTextSafe(s.pg_percentage) : 'N/A'}</td>
-      </tr>`).join('')
+      </tr>`;
+    }).join('')
       : `<tr class="loading-row"><td colspan="8">No students currently meet this criteria.</td></tr>`;
-  }catch(e){
-    tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Couldn't load eligible students (${e.message}).</td></tr>`;
   }
+}async function fpcOpenEligibleProfile(college, regNo){
+  fpcSelectedCollege = college;
+  setNavCollegeName(college);
+  fpcCurrentEditRegNo = null;
+  await fpcLoadStudents();
+  fpcCurrentProfileRegNo = regNo;
+  fpcViewProfile(regNo);
 }
 
 function setNavCollegeName(name){
