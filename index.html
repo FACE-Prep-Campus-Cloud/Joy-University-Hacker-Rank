@@ -1072,8 +1072,12 @@ tbody.innerHTML = eligible.length ? eligible.map(s => {
       </tr>`;
     }).join('')
       : `<tr class="loading-row"><td colspan="8">No students currently meet this criteria.</td></tr>`;
+  }catch(e){
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Couldn't load eligible students (${e.message}).</td></tr>`;
   }
-}async function fpcOpenEligibleProfile(college, regNo){
+}
+
+async function fpcOpenEligibleProfile(college, regNo){
   fpcSelectedCollege = college;
   setNavCollegeName(college);
   fpcCurrentEditRegNo = null;
@@ -1081,7 +1085,6 @@ tbody.innerHTML = eligible.length ? eligible.map(s => {
   fpcCurrentProfileRegNo = regNo;
   fpcViewProfile(regNo);
 }
-
 function setNavCollegeName(name){
   document.querySelectorAll('.fpc-nav-college-name').forEach(el => el.textContent = name ? '· ' + name : '');
 }
