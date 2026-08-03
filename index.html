@@ -406,8 +406,8 @@ button, input, select, textarea { font-family: inherit; }
 #fpc-readiness-screen .campus-hero p{ color:var(--fpc-ink-soft); font-size:13.5px; margin-top:6px; max-width:560px; line-height:1.5; }
 #fpc-readiness-screen .campus-summary-row{ display:flex; gap:26px; flex-wrap:wrap; margin-top:16px; }
 #fpc-readiness-screen .campus-summary-row .fcb-stat{ display:flex; align-items:center; gap:10px; background:var(--fpc-card); border:1px solid var(--fpc-line); border-radius:var(--fpc-radius-lg); padding:12px 16px; box-shadow:var(--fpc-shadow); }
-#fpc-readiness-screen .campus-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:16px; margin-top:18px; }
-#fpc-readiness-screen .campus-card{ background:var(--fpc-card); border:1px solid var(--fpc-line); border-radius:var(--fpc-radius-xl); padding:20px; box-shadow:var(--fpc-shadow); cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; display:flex; flex-direction:column; gap:12px; }
+#fpc-readiness-screen .campus-grid{ position:relative; display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:16px; margin-top:18px; min-height:120px; }
+  #fpc-readiness-screen .campus-card{ background:var(--fpc-card); border:1px solid var(--fpc-line); border-radius:var(--fpc-radius-xl); padding:20px; box-shadow:var(--fpc-shadow); cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; display:flex; flex-direction:column; gap:12px; }
 #fpc-readiness-screen .campus-card:hover{ transform:translateY(-3px); box-shadow:0 4px 8px rgba(59,69,34,.08), 0 20px 40px -18px rgba(59,69,34,.32); }
 #fpc-readiness-screen .campus-card .cc-top{ display:flex; align-items:center; gap:12px; }
 #fpc-readiness-screen .campus-card .cc-icn{ width:44px; height:44px; border-radius:13px; background:var(--fpc-card-soft); border:1px solid var(--fpc-line); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
@@ -1033,7 +1033,8 @@ document.getElementById('fpcOverviewLoadingOverlay').classList.add('open');
     }).join('');
 
 fpcSetStatus('live', `Live · ${names.length} campus${names.length===1?'':'es'} connected`);document.getElementById('fpcOverviewLoadingOverlay').classList.remove('open');
-  }catch(e){
+}catch(e){
+    document.getElementById('fpcOverviewLoadingOverlay').classList.remove('open');
     fpcSetStatus(null, 'Connection failed');
     document.getElementById('fpcErrorBannerOverview').style.display = 'block';
     document.getElementById('fpcErrorDetailOverview').textContent = `Couldn't load campuses from Supabase (${e.message}). Try refreshing the page.`;
@@ -1932,33 +1933,6 @@ window.addEventListener('load', ()=>{
     splash.classList.add('fpc-splash-hide');
     setTimeout(()=> splash.remove(), 650);
   }, 2200);
-});
-  let hidden = false;
-  const doHide = ()=>{ if(!hidden){ hidden = true; hideSplash(); } };
-  // Fallback in case the animation never reports completion (e.g. CDN blocked)
-  setTimeout(doHide, 7000);
-
-  import('https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm')
-    .then(({ DotLottie }) => {
-      const dataEl = document.getElementById('fpc-handshake-lottie-data');
-      const animationData = JSON.parse(dataEl.textContent);
-      const blob = new Blob([JSON.stringify(animationData)], { type: 'application/json' });
-      const blobUrl = URL.createObjectURL(blob);
-
-      const dotLottie = new DotLottie({
-        autoplay: true,
-        loop: false,
-        canvas: document.getElementById('fpcHandshakeCanvas'),
-        src: blobUrl
-      });
-
-      dotLottie.addEventListener('complete', doHide);
-      dotLottie.addEventListener('load', () => URL.revokeObjectURL(blobUrl));
-    })
-    .catch((e) => {
-      console.error('Handshake splash animation failed to load:', e);
-      doHide();
-    });
 });
 </script>
 </body>
