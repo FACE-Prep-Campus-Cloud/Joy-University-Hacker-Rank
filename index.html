@@ -1405,9 +1405,14 @@ function fpcPctTextSafe(v){ const n=fpcFmt(v); return n===null?'—':`${n}%`; }
 function fpcNumTextSafe(v){ const n=fpcFmt(v); return n===null?'—':`${n}`; }
 function fpcPctText(v){ return fpcPctTextSafe(v); }
 function fpcNumText(v){ return fpcNumTextSafe(v); }
-function fpcLinkRow(tag, url){
+function fpcLinkRow(tag, url, mode){
   const valid = url && /^https?:\/\//i.test(url.trim());
   if(!valid) return `<div class="modal-link unavailable modal-link-row"><span class="link-tag">${tag}</span> ${url ? url : 'Not provided'}</div>`;
+  if(mode === 'doc'){
+    const safeUrl = escHTML(url).replace(/'/g,"\\'");
+    const safeTag = escHTML(tag).replace(/'/g,"\\'");
+    return `<div class="modal-link modal-link-row" style="cursor:pointer;" onclick="fpcOpenCertModal('${safeUrl}','${safeTag}')"><span class="link-tag">${tag}</span> ${url}</div>`;
+  }
   return `<a class="modal-link modal-link-row" href="${url}" target="_blank" rel="noopener"><span class="link-tag">${tag}</span> ${url}</a>`;
 }
   function fpcLinkPill(label, icon, url, mode){
@@ -1455,7 +1460,7 @@ function fpcOpenModal(regNo, startInEdit){
   document.getElementById('fpc_mAdvQuant').textContent = fpcPctText(s.nqt_advanced_quant_reasoning);
   document.getElementById('fpc_mCoding').textContent = fpcPctText(s.nqt_coding);
   document.getElementById('fpc_mNqtOverall').textContent = fpcPctText(s.nqt_overall);
-  document.getElementById('fpc_mLinks').innerHTML = fpcLinkRow('LinkedIn', s.linkedin_url) + fpcLinkRow('Resume', s.resume_url) + fpcLinkRow('GitHub', s.github_url);
+document.getElementById('fpc_mLinks').innerHTML = fpcLinkRow('LinkedIn', s.linkedin_url) + fpcLinkRow('Resume', s.resume_url, 'doc') + fpcLinkRow('GitHub', s.github_url);
   fpcSetInputVal('fpc_eName', s.student_name); fpcSetInputVal('fpc_eDept', s.department); fpcSetInputVal('fpc_eEmail', s.email);
   fpcSetInputVal('fpc_eEligibility', isEligible ? 'Eligible' : '');
   fpcSetInputVal('fpc_eCommLevel', s.communication_skill_level);
