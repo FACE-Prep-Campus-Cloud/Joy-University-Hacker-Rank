@@ -384,13 +384,12 @@ button, input, select, textarea { font-family: inherit; }
 #fpcSplash{
   position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
   flex-direction:column; gap:22px;
-  background:
-    radial-gradient(1100px 600px at 20% -10%, #EEF4CF 0%, transparent 60%),
-    radial-gradient(900px 520px at 100% 10%, #E7F0D2 0%, transparent 55%),
-    linear-gradient(160deg,#FBFCF4 0%, #F3F7E4 100%);
+  background: linear-gradient(135deg, #9B4DFF 0%, #6C2BE0 45%, #4B1FC9 100%);
   transition: opacity .55s ease, visibility .55s ease;
 }
-#fpcSplash.fpc-splash-hide{ opacity:0; visibility:hidden; pointer-events:none; }
+#fpcSplash .fpc-splash-text .brandline{ color:#fff; }
+#fpcSplash .fpc-splash-text p{ color:rgba(255,255,255,.75); }
+  #fpcSplash.fpc-splash-hide{ opacity:0; visibility:hidden; pointer-events:none; }
 #fpcSplash .fpc-splash-stage{ position:relative; width:300px; height:300px; max-width:70vw; }
 #fpcSplash #fpcHandshakeCanvas{ width:100%; height:100%; display:block; }
 #fpcSplash .fpc-splash-text{ text-align:center; opacity:0; animation:fpcFadeUp .6s ease .2s forwards; }
@@ -519,21 +518,50 @@ button, input, select, textarea { font-family: inherit; }
   margin-top:10px; padding-top:10px; border-top:1px solid var(--fpc-line); display:flex; justify-content:space-between;
   font-weight:700; font-family:'Space Grotesk',sans-serif; font-size:13px;
 }
+  .fpc-hourglass{ width:120px; height:120px; }
+.fpc-hourglass .hg-outline{ fill:none; stroke:#fff; stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
+.fpc-hourglass .hg-sand{ fill:#5CE8B5; }
+.fpc-hourglass-wrap{ animation: hgFlip 2.6s ease-in-out infinite; transform-origin:60px 60px; }
+@keyframes hgFlip{
+  0%, 40%{ transform:rotate(0deg); }
+  55%, 95%{ transform:rotate(180deg); }
+  100%{ transform:rotate(180deg); }
+}
+.fpc-hourglass .hg-sand-top{ animation: hgTop 2.6s ease-in-out infinite; transform-origin:60px 60px; }
+.fpc-hourglass .hg-sand-bottom{ animation: hgBottom 2.6s ease-in-out infinite; transform-origin:60px 60px; }
+@keyframes hgTop{
+  0%{ transform:scaleY(1); }
+  40%{ transform:scaleY(0); }
+  100%{ transform:scaleY(0); }
+}
+@keyframes hgBottom{
+  0%{ transform:scaleY(0); }
+  40%{ transform:scaleY(1); }
+  100%{ transform:scaleY(1); }
+}
+
+/* Reusable "lag" overlay — shown over any panel while data is loading */
+.fpc-loading-overlay{
+  position:absolute; inset:0; z-index:40; display:none; align-items:center; justify-content:center;
+  flex-direction:column; gap:10px;
+  background:linear-gradient(135deg, rgba(155,77,255,.92) 0%, rgba(75,31,201,.92) 100%);
+  border-radius:inherit;
+}
+.fpc-loading-overlay.open{ display:flex; }
+.fpc-loading-overlay .fpc-hourglass{ width:64px; height:64px; }
+.fpc-loading-overlay span{ color:rgba(255,255,255,.85); font-size:12px; font-weight:600; }
 </style>
 </head>
 <body>
 
 <!-- ── INTRO HANDSHAKE ANIMATION (Lottie) ── -->
 <div id="fpcSplash">
-  <div class="fpc-splash-stage">
-    <canvas id="fpcHandshakeCanvas" width="300" height="300"></canvas>
-  </div>
+  <div class="fpc-splash-stage" id="fpcSplashStage"></div>
   <div class="fpc-splash-text">
     <div class="brandline"><span class="dot-mark"></span>FACE Prep · Campus Connect</div>
     <p>Bringing your placement readiness data online…</p>
   </div>
 </div>
-
 <!-- ── FPC READINESS MONITOR ── -->
 <div id="fpc-readiness-screen">
   <div class="fpc-scroll-wrap" style="flex:1;min-height:0;overflow-y:auto;">
@@ -575,7 +603,9 @@ button, input, select, textarea { font-family: inherit; }
 
 <div class="campus-grid" id="fpcCampusGrid">
       <div class="campus-empty">Loading campuses…</div>
-    </div>
+    </div><div class="fpc-loading-overlay" id="fpcOverviewLoadingOverlay">
+  <span id="fpcHgOverviewStage"></span><span>Loading…</span>
+</div>
 
     <div class="metric-table-wrap fpc-table-wrap" id="fpcEligibleTableWrap" style="display:none;">
       <div class="panel-head" style="padding:16px 16px 0;">
@@ -946,6 +976,8 @@ function fpcToggleAllScoreInfo(){
    side, and renders one card per college showing its student count and
    the distinct stream (department) names — straight on the main page. */
 async function fpcLoadCampusOverview(){
+  document.getElementById('fpcHgOverviewStage').innerHTML = fpcHourglassSvg();
+document.getElementById('fpcOverviewLoadingOverlay').classList.add('open');
   const grid = document.getElementById('fpcCampusGrid');
   grid.innerHTML = '<div class="campus-empty">Loading campuses…</div>';
   fpcSetStatus('loading', 'Connecting to live data…');
@@ -1000,7 +1032,7 @@ async function fpcLoadCampusOverview(){
         </div>`;
     }).join('');
 
-fpcSetStatus('live', `Live · ${names.length} campus${names.length===1?'':'es'} connected`);
+fpcSetStatus('live', `Live · ${names.length} campus${names.length===1?'':'es'} connected`);document.getElementById('fpcOverviewLoadingOverlay').classList.remove('open');
   }catch(e){
     fpcSetStatus(null, 'Connection failed');
     document.getElementById('fpcErrorBannerOverview').style.display = 'block';
@@ -1834,7 +1866,17 @@ async function fpcConfirmImport(){
   await fpcLoadStudents();
   if(failed === 0) fpcCloseImportModal();
 }
-
+function fpcHourglassSvg(){
+  return `<svg class="fpc-hourglass" viewBox="0 0 120 120">
+    <g class="fpc-hourglass-wrap">
+      <path class="hg-outline" d="M30 15 H90 M30 105 H90 M30 15 C30 45 60 50 60 60 C60 50 90 45 90 15 M30 105 C30 75 60 70 60 60 C60 70 90 75 90 105"/>
+      <clipPath id="hgTopClip"><path d="M33 17 C33 44 60 49 60 59 L38 59 C33 49 33 30 33 17 Z"/></clipPath>
+      <clipPath id="hgBottomClip"><path d="M87 103 C87 76 60 71 60 61 L82 61 C87 71 87 90 87 103 Z"/></clipPath>
+      <rect class="hg-sand hg-sand-top" x="30" y="17" width="30" height="42" clip-path="url(#hgTopClip)"/>
+      <rect class="hg-sand hg-sand-bottom" x="60" y="61" width="30" height="42" clip-path="url(#hgBottomClip)"/>
+    </g>
+  </svg>`;
+}
 /* ============================================================
    MANUAL ADD — single new student via the existing modal
    ============================================================ */
@@ -1882,13 +1924,15 @@ fpcLoadCampusOverview();
 document.getElementById('fpcTableBody').innerHTML = `<div class="fpc-cards-empty">Select a campus from the overview page to load its data.</div>`;
 
 /* ── Intro handshake splash: play the dotLottie animation once on canvas, then reveal the app ── */
+document.getElementById('fpcSplashStage').innerHTML = fpcHourglassSvg();
 window.addEventListener('load', ()=>{
   const splash = document.getElementById('fpcSplash');
   if(!splash) return;
-  const hideSplash = ()=>{
+  setTimeout(()=>{
     splash.classList.add('fpc-splash-hide');
     setTimeout(()=> splash.remove(), 650);
-  };
+  }, 2200);
+});
   let hidden = false;
   const doHide = ()=>{ if(!hidden){ hidden = true; hideSplash(); } };
   // Fallback in case the animation never reports completion (e.g. CDN blocked)
