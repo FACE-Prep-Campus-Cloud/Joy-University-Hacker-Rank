@@ -1058,7 +1058,6 @@ fpcEligibleStudentsList = eligible;
     document.getElementById('fpcEligibleCount').textContent = eligible.length;
 
 tbody.innerHTML = eligible.length ? eligible.map(s => {
-tbody.innerHTML = eligible.length ? eligible.map(s => {
       const regSafe = escHTML(s.registration_number||'').replace(/'/g,"\\'");
       const collegeSafe = escHTML(s.college||'').replace(/'/g,"\\'");
       return `
