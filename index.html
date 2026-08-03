@@ -379,7 +379,7 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   HANDSHAKE INTRO SPLASH (Lottie-powered)
+   HANDSHAKE INTRO SPLASH (self-contained CSS animation)
    ══════════════════════════════════════════════════════════ */
 #fpcSplash{
   position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center;
@@ -391,13 +391,87 @@ button, input, select, textarea { font-family: inherit; }
   transition: opacity .55s ease, visibility .55s ease;
 }
 #fpcSplash.fpc-splash-hide{ opacity:0; visibility:hidden; pointer-events:none; }
-#fpcSplash .fpc-splash-stage{ position:relative; width:300px; height:300px; max-width:70vw; }
-#fpcSplash #fpcHandshakeCanvas{ width:100%; height:100%; display:block; }
+#fpcSplash .fpc-splash-stage{ position:relative; width:132px; height:132px; }
+
+/* Outer pulsing rings */
+#fpcSplash .fpc-splash-ring{
+  position:absolute; inset:0; border-radius:50%;
+  border:2px solid var(--fpc-lime-deep,#9CB52A);
+  opacity:0; animation: fpcRingPulse 1.8s cubic-bezier(.2,.7,.3,1) infinite;
+}
+#fpcSplash .fpc-splash-ring.r2{ animation-delay: .6s; }
+#fpcSplash .fpc-splash-ring.r3{ animation-delay: 1.2s; }
+@keyframes fpcRingPulse{
+  0%{ transform:scale(.55); opacity:.55; }
+  100%{ transform:scale(1.35); opacity:0; }
+}
+
+/* Center mark: two interlocking rounded shapes forming a handshake-ish knot,
+   plus a slim rotating loader ring around it */
+#fpcSplash .fpc-splash-core{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+}
+#fpcSplash .fpc-splash-spinner{
+  position:absolute; width:88px; height:88px; border-radius:50%;
+  border:3px solid rgba(92,107,50,.14);
+  border-top-color:var(--fpc-lime-deep,#9CB52A);
+  border-right-color:var(--fpc-olive-deep,#3B4522);
+  animation: fpcSpin 1s linear infinite;
+}
+@keyframes fpcSpin{ to{ transform:rotate(360deg); } }
+
+#fpcSplash .fpc-splash-mark{
+  position:relative; width:52px; height:52px; display:flex; align-items:center; justify-content:center;
+  animation: fpcMarkBob 1.6s ease-in-out infinite;
+}
+@keyframes fpcMarkBob{ 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-3px) scale(1.05); } }
+#fpcSplash .fpc-splash-mark .dot-a, #fpcSplash .fpc-splash-mark .dot-b{
+  position:absolute; width:26px; height:26px; border-radius:9px;
+}
+#fpcSplash .fpc-splash-mark .dot-a{ background:var(--fpc-lime,#C7DE3E); top:0; left:0; box-shadow:0 4px 10px rgba(156,181,42,.35); }
+#fpcSplash .fpc-splash-mark .dot-b{ background:var(--fpc-olive-deep,#3B4522); bottom:0; right:0; box-shadow:0 4px 10px rgba(59,69,34,.3); }
+
 #fpcSplash .fpc-splash-text{ text-align:center; opacity:0; animation:fpcFadeUp .6s ease .2s forwards; }
 #fpcSplash .fpc-splash-text .brandline{ display:flex; align-items:center; justify-content:center; gap:9px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px; color:var(--fpc-ink,#1C2116); }
 #fpcSplash .fpc-splash-text .brandline .dot-mark{width:11px;height:11px;border-radius:4px;background:var(--fpc-lime,#C7DE3E);}
-#fpcSplash .fpc-splash-text p{ margin-top:6px; font-size:12.5px; color:var(--fpc-ink-soft,#6E7660); }
+#fpcSplash .fpc-splash-text p{ margin-top:6px; font-size:12.5px; color:var(--fpc-ink-soft,#6E7660); min-height:16px; }
 @keyframes fpcFadeUp{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+
+/* Slim indeterminate progress bar under the splash text */
+#fpcSplash .fpc-splash-bar{
+  width:180px; height:4px; border-radius:100px; background:var(--fpc-line,#E8ECD6);
+  overflow:hidden; opacity:0; animation:fpcFadeUp .6s ease .3s forwards;
+}
+#fpcSplash .fpc-splash-bar span{
+  display:block; height:100%; width:40%; border-radius:100px;
+  background:linear-gradient(90deg, var(--fpc-lime-deep,#9CB52A), var(--fpc-olive-deep,#3B4522));
+  animation: fpcBarSlide 1.3s ease-in-out infinite;
+}
+@keyframes fpcBarSlide{
+  0%{ transform:translateX(-100%); }
+  50%{ transform:translateX(60%); }
+  100%{ transform:translateX(220%); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   GLOBAL "LAG" LOADER — small floating indicator shown any
+   time the app is talking to Supabase / the HIRE API, so a
+   slow network doesn't look like a frozen page.
+   ══════════════════════════════════════════════════════════ */
+#fpcGlobalLoader{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(140%);
+  z-index:210; display:flex; align-items:center; gap:10px;
+  background:var(--fpc-ink,#1C2116); color:#fff; padding:10px 18px 10px 14px; border-radius:100px;
+  box-shadow:0 12px 30px rgba(22,29,38,.3); font-size:12.5px; font-weight:600;
+  transition: transform .3s cubic-bezier(.2,.8,.3,1), opacity .3s ease; opacity:0;
+  font-family:'Inter',system-ui,sans-serif;
+}
+#fpcGlobalLoader.show{ transform:translateX(-50%) translateY(0); opacity:1; }
+#fpcGlobalLoader .fpc-mini-spin{
+  width:15px; height:15px; border-radius:50%; flex-shrink:0;
+  border:2px solid rgba(255,255,255,.25); border-top-color:var(--fpc-lime,#C7DE3E);
+  animation: fpcSpin .8s linear infinite;
+}
 
 /* ══════════════════════════════════════════════════════════
    CAMPUS  (all colleges, no dropdown)
@@ -523,16 +597,29 @@ button, input, select, textarea { font-family: inherit; }
 </head>
 <body>
 
-<!-- ── INTRO HANDSHAKE ANIMATION (Lottie) ── -->
+<!-- ── INTRO / LAG LOADING ANIMATION (self-contained CSS, no external assets) ── -->
 <div id="fpcSplash">
   <div class="fpc-splash-stage">
-    <canvas id="fpcHandshakeCanvas" width="300" height="300"></canvas>
+    <div class="fpc-splash-ring r1"></div>
+    <div class="fpc-splash-ring r2"></div>
+    <div class="fpc-splash-ring r3"></div>
+    <div class="fpc-splash-core">
+      <div class="fpc-splash-spinner"></div>
+      <div class="fpc-splash-mark">
+        <div class="dot-a"></div>
+        <div class="dot-b"></div>
+      </div>
+    </div>
   </div>
   <div class="fpc-splash-text">
     <div class="brandline"><span class="dot-mark"></span>FACE Prep · Campus Connect</div>
-    <p>Bringing your placement readiness data online…</p>
+    <p id="fpcSplashSubtext">Bringing your placement readiness data online…</p>
   </div>
+  <div class="fpc-splash-bar"><span></span></div>
 </div>
+
+<!-- ── Small floating indicator reused for every later fetch (import, save, campus switch, etc.) ── -->
+<div id="fpcGlobalLoader"><span class="fpc-mini-spin"></span><span id="fpcGlobalLoaderText">Loading…</span></div>
 
 <!-- ── FPC READINESS MONITOR ── -->
 <div id="fpc-readiness-screen">
@@ -926,7 +1013,42 @@ const show = id => $(id).classList.remove('hidden');
 const hide = id => $(id).classList.add('hidden');
 function escHTML(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-/* ── NEW: Score explainer strip toggle (HIRE Score / FPC NQT) ── */
+/* ============================================================
+   LOADING ANIMATIONS
+   1) #fpcSplash — full-screen animated mark shown on first load,
+      hidden once the campus overview has actually finished
+      loading (or after a safety timeout).
+   2) #fpcGlobalLoader — small floating pill + spinner, shown any
+      time the app is waiting on Supabase / the HIRE API after
+      the splash is gone, so slow requests never look "frozen".
+   Both are driven from fpcSetStatus() below, plus a couple of
+   direct calls around save/import actions.
+   ============================================================ */
+let fpcSplashDismissed = false;
+function fpcDismissSplash(){
+  if(fpcSplashDismissed) return;
+  fpcSplashDismissed = true;
+  const splash = document.getElementById('fpcSplash');
+  if(!splash) return;
+  splash.classList.add('fpc-splash-hide');
+  setTimeout(()=> splash.remove(), 650);
+}
+let fpcGlobalLoaderCount = 0;
+function fpcShowGlobalLoader(text){
+  fpcGlobalLoaderCount++;
+  const el = document.getElementById('fpcGlobalLoader');
+  if(!el) return;
+  document.getElementById('fpcGlobalLoaderText').textContent = text || 'Loading…';
+  el.classList.add('show');
+}
+function fpcHideGlobalLoader(force){
+  if(force){ fpcGlobalLoaderCount = 0; } else { fpcGlobalLoaderCount = Math.max(0, fpcGlobalLoaderCount - 1); }
+  if(fpcGlobalLoaderCount > 0) return;
+  const el = document.getElementById('fpcGlobalLoader');
+  if(el) el.classList.remove('show');
+}
+
+/* ── NEW: Score explainer strip (HIRE Score / FPC NQT) ── */
 function fpcToggleAllScoreInfo(){
   const hireDetail = document.getElementById('sicHireDetail');
   const nqtDetail = document.getElementById('sicNqtDetail');
@@ -950,6 +1072,8 @@ async function fpcLoadCampusOverview(){
   const grid = document.getElementById('fpcCampusGrid');
   grid.innerHTML = '<div class="campus-empty">Loading campuses…</div>';
   fpcSetStatus('loading', 'Connecting to live data…');
+  const splashSub = document.getElementById('fpcSplashSubtext');
+  if(splashSub) splashSub.textContent = 'Connecting to live data…';
   try{
     const url = `${FPC_SUPABASE_URL}/rest/v1/students?select=college,department`;
     const res = await fetch(url, { headers:{ apikey: FPC_SUPABASE_ANON_KEY, Authorization: `Bearer ${FPC_SUPABASE_ANON_KEY}` } });
@@ -1009,6 +1133,8 @@ fpcSetStatus('live', `Live · ${names.length} campus${names.length===1?'':'es'} 
     document.getElementById('fpcErrorBannerOverview').style.display = 'block';
     document.getElementById('fpcErrorDetailOverview').textContent = `Couldn't load campuses from Supabase (${e.message}). Try refreshing the page.`;
     grid.innerHTML = '<div class="campus-empty">Couldn\'t load campus data.</div>';
+  }finally{
+    fpcDismissSplash();
   }
 }
 
@@ -1036,6 +1162,7 @@ async function fpcToggleEligibleFilter(){
 async function fpcLoadEligibleStudents(){
   const tbody = document.getElementById('fpcEligibleTableBody');
   tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Loading eligible students…</td></tr>`;
+  fpcShowGlobalLoader('Finding eligible students…');
   try{
     const url = `${FPC_SUPABASE_URL}/rest/v1/student_monitor_view?select=*`;
     const res = await fetch(url, { headers:{ apikey: FPC_SUPABASE_ANON_KEY, Authorization: `Bearer ${FPC_SUPABASE_ANON_KEY}` } });
@@ -1075,6 +1202,8 @@ tbody.innerHTML = eligible.length ? eligible.map(s => {
       : `<tr class="loading-row"><td colspan="8">No students currently meet this criteria.</td></tr>`;
   }catch(e){
     tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Couldn't load eligible students (${e.message}).</td></tr>`;
+  }finally{
+    fpcHideGlobalLoader();
   }
 }
 
@@ -1154,6 +1283,12 @@ function fpcSetStatus(state, label){
     const txt = pill.querySelector('.fpc-status-text');
     if(txt) txt.textContent = label;
   });
+  // Drive the floating "lag" loader off the same status calls, but only
+  // once the intro splash is gone (the splash already covers first load).
+  if(fpcSplashDismissed){
+    if(state === 'loading') fpcShowGlobalLoader(label || 'Loading…');
+    else fpcHideGlobalLoader(true);
+  }
 }
 function fpcToggleAvatarMenu(el){
   const dd = el.nextElementSibling;
@@ -1620,6 +1755,7 @@ async function fpcSaveEdit(){
   const errBox = document.getElementById('fpcModalSaveError');
   errBox.classList.remove('open');
   btn.disabled = true; btn.textContent = 'Saving…';
+  fpcShowGlobalLoader('Saving student…');
   try{
     const college = fpcSelectedCollege;
     const studentsPayload = {
@@ -1662,6 +1798,7 @@ async function fpcSaveEdit(){
     fpcShowToast('Save failed. See details in the panel.', true);
   }finally{
     btn.disabled = false; btn.textContent = 'Save changes';
+    fpcHideGlobalLoader();
   }
 }
 
@@ -1776,11 +1913,13 @@ async function fpcConfirmImport(){
 
   const btn = document.getElementById('fpcImportConfirmBtn');
   btn.disabled = true; btn.textContent = `Importing 0 / ${rows.length}…`;
+  fpcShowGlobalLoader(`Importing 0 / ${rows.length}…`);
   let success = 0, failed = 0;
 
   for(let i=0; i<rows.length; i++){
     const r = rows[i];
     btn.textContent = `Importing ${i+1} / ${rows.length}…`;
+    document.getElementById('fpcGlobalLoaderText').textContent = `Importing ${i+1} / ${rows.length}…`;
     try{
       const studentsPayload = {
         registration_number: r.registration_number.trim(),
@@ -1833,6 +1972,7 @@ async function fpcConfirmImport(){
   }
 
   btn.disabled = false; btn.textContent = 'Import rows';
+  fpcHideGlobalLoader(true);
   fpcShowToast(`Import done — ${success} saved${failed ? `, ${failed} failed` : ''}.`, failed > 0 && success === 0);
   await fpcLoadStudents();
   if(failed === 0) fpcCloseImportModal();
@@ -1884,41 +2024,9 @@ function fpcOpenAddStudentModal(){
 fpcLoadCampusOverview();
 document.getElementById('fpcTableBody').innerHTML = `<div class="fpc-cards-empty">Select a campus from the overview page to load its data.</div>`;
 
-/* ── Intro handshake splash: play the dotLottie animation once on canvas, then reveal the app ── */
-window.addEventListener('load', ()=>{
-  const splash = document.getElementById('fpcSplash');
-  if(!splash) return;
-  const hideSplash = ()=>{
-    splash.classList.add('fpc-splash-hide');
-    setTimeout(()=> splash.remove(), 650);
-  };
-  let hidden = false;
-  const doHide = ()=>{ if(!hidden){ hidden = true; hideSplash(); } };
-  // Fallback in case the animation never reports completion (e.g. CDN blocked)
-  setTimeout(doHide, 7000);
-
-  import('https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm')
-    .then(({ DotLottie }) => {
-      const dataEl = document.getElementById('fpc-handshake-lottie-data');
-      const animationData = JSON.parse(dataEl.textContent);
-      const blob = new Blob([JSON.stringify(animationData)], { type: 'application/json' });
-      const blobUrl = URL.createObjectURL(blob);
-
-      const dotLottie = new DotLottie({
-        autoplay: true,
-        loop: false,
-        canvas: document.getElementById('fpcHandshakeCanvas'),
-        src: blobUrl
-      });
-
-      dotLottie.addEventListener('complete', doHide);
-      dotLottie.addEventListener('load', () => URL.revokeObjectURL(blobUrl));
-    })
-    .catch((e) => {
-      console.error('Handshake splash animation failed to load:', e);
-      doHide();
-    });
-});
+/* Safety net: never let the splash get stuck up if something above throws
+   before the campus overview fetch resolves. */
+setTimeout(fpcDismissSplash, 6000);
 </script>
 </body>
 </html>
