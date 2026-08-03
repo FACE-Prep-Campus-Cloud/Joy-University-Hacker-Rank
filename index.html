@@ -1014,7 +1014,7 @@ fpcSetStatus('live', `Live · ${names.length} campus${names.length===1?'':'es'} 
 
 /* ── 60%+ Eligible Students filter (Campus Overview, cross-college) ── */
 let fpcEligibleFilterActive = false;
-
+let fpcEligibleStudentsList = [];
 async function fpcToggleEligibleFilter(){
   fpcEligibleFilterActive = !fpcEligibleFilterActive;
   const btn = document.getElementById('fpcEligFilterBtn');
@@ -1054,8 +1054,10 @@ async function fpcLoadEligibleStudents(){
       return true;
     });
 
+fpcEligibleStudentsList = eligible;
     document.getElementById('fpcEligibleCount').textContent = eligible.length;
 
+tbody.innerHTML = eligible.length ? eligible.map(s => {
 tbody.innerHTML = eligible.length ? eligible.map(s => {
       const regSafe = escHTML(s.registration_number||'').replace(/'/g,"\\'");
       const collegeSafe = escHTML(s.college||'').replace(/'/g,"\\'");
@@ -1351,6 +1353,9 @@ function fpcRenderAll(){
 }
 
 function fpcCurrentProfileList(){
+  if(fpcProfileReturnView === 'eligible'){
+    return fpcEligibleStudentsList;
+  }
   return fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect');
 }
 function fpcUpdateProfileStepControls(){
@@ -1361,14 +1366,19 @@ function fpcUpdateProfileStepControls(){
   if(idx === -1 || list.length === 0){ counter.textContent = ''; prevBtn.disabled = true; nextBtn.disabled = true; return; }
   counter.textContent = `${idx+1} of ${list.length}`; prevBtn.disabled = idx <= 0; nextBtn.disabled = idx >= list.length - 1;
 }
-function fpcStepProfile(dir){
+async function fpcStepProfile(dir){
   const list = fpcCurrentProfileList();
   const idx = list.findIndex(s => s.registration_number === fpcCurrentProfileRegNo);
   if(idx === -1) return;
   const nextIdx = idx + dir; if(nextIdx < 0 || nextIdx >= list.length) return;
-  fpcViewProfile(list[nextIdx].registration_number);
+  const nextStudent = list[nextIdx];
+  if(fpcProfileReturnView === 'eligible'){
+    await fpcOpenEligibleProfile(nextStudent.college, nextStudent.registration_number);
+  } else {
+    fpcViewProfile(nextStudent.registration_number);
+  }
 }
-function fpcRenderScoreBreakdown(s){
+  function fpcRenderScoreBreakdown(s){
   const hireItems = [
     ['FOP', s.hire_fop, '%'],
     ['DSA', s.hire_dsa, '%'],
