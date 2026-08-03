@@ -1083,9 +1083,9 @@ async function fpcOpenEligibleProfile(college, regNo){
   fpcCurrentEditRegNo = null;
   await fpcLoadStudents();
   fpcCurrentProfileRegNo = regNo;
-  fpcViewProfile(regNo);
+  fpcViewProfile(regNo, 'eligible');
 }
-function setNavCollegeName(name){
+  function setNavCollegeName(name){
   document.querySelectorAll('.fpc-nav-college-name').forEach(el => el.textContent = name ? '· ' + name : '');
 }
 
@@ -1250,11 +1250,21 @@ function fpcShowView(id){
 function fpcGoOverview(){ fpcShowView('fpcViewCampusOverview'); fpcSetActiveNav('overview'); }
 function fpcGoStudents(){ fpcShowView('fpcViewStudents'); fpcSetActiveNav('students'); fpcRenderTable(); }
 function fpcGoBackFromProfile(){
+  if(fpcProfileReturnView === 'eligible'){
+    fpcShowView('fpcViewCampusOverview');
+    fpcSetActiveNav('overview');
+    fpcEligibleFilterActive = true;
+    const btn = document.getElementById('fpcEligFilterBtn');
+    if(btn) btn.textContent = '✕ Back to Campus Overview';
+    document.getElementById('fpcCampusGrid').style.display = 'none';
+    document.getElementById('fpcEligibleTableWrap').style.display = 'block';
+    fpcLoadEligibleStudents();
+    return;
+  }
   fpcShowView('fpcViewStudents');
   fpcSetActiveNav('students');
   fpcRenderTable();
 }
-
 function fpcPopulateFilters(){
   const depts = [...new Set(FPC_STUDENTS.map(s=>s.department).filter(Boolean))];
   const sel = document.getElementById('fpcDeptFilter');
@@ -1459,11 +1469,11 @@ function fpcCloseCertModal(){
   document.getElementById('fpcCertModalBody').innerHTML = '';
 }
 
-function fpcViewProfile(regNo){
+function fpcViewProfile(regNo, returnView){
   const s = FPC_STUDENTS.find(x => x.registration_number === regNo);
   if(!s) return;
   fpcCurrentProfileRegNo = regNo;
-  fpcProfileReturnView = 'fpcViewStudents';
+  fpcProfileReturnView = returnView || 'fpcViewStudents';
   document.getElementById('fpcPAvatar').innerHTML = fpcAvatarImgHtml(s.student_name);
   document.getElementById('fpcPName').textContent = s.student_name || '—';
   document.getElementById('fpcPLoc').textContent = `${s.department || '—'} · ${s.registration_number || '—'}`;
