@@ -646,9 +646,9 @@ button, input, select, textarea { font-family: inherit; }
             <div class="sic-short">FACE Prep National Qualifier Test — a placement-readiness assessment covering Aptitude and Coding, helping students see where they stand and what to improve before campus placements.</div>
           </div>
         </div>
-        <button class="sic-toggle" onclick="fpcToggleScoreInfo(this,'sicNqtDetail')">
-          <span class="chev">▾</span><span class="txt">See how it's calculated</span>
-        </button>
+<button class="sic-toggle" id="sicToggleNqt" onclick="fpcToggleAllScoreInfo()">
+  <span class="chev">▾</span><span class="txt">See how it's calculated</span>
+</button>
         <div class="sic-detail" id="sicNqtDetail">
           <div class="sic-pillar">
             <div class="sic-pillar-head"><span>Aptitude Score</span></div>
@@ -900,16 +900,21 @@ const hide = id => $(id).classList.add('hidden');
 function escHTML(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ── NEW: Score explainer strip toggle (HIRE Score / FPC NQT) ── */
-function fpcToggleScoreInfo(btn, detailId){
-  const detail = document.getElementById(detailId);
-  if(!detail) return;
-  const willOpen = !detail.classList.contains('open');
-  detail.classList.toggle('open', willOpen);
-  btn.classList.toggle('open', willOpen);
-  const txt = btn.querySelector('.txt');
-  if(txt) txt.textContent = willOpen ? "Hide detailed calculation" : "See how it's calculated";
-}
+function fpcToggleAllScoreInfo(){
+  const hireDetail = document.getElementById('sicHireDetail');
+  const nqtDetail = document.getElementById('sicNqtDetail');
+  const hireBtn = document.getElementById('sicToggleHire');
+  const nqtBtn = document.getElementById('sicToggleNqt');
+  const willOpen = !hireDetail.classList.contains('open');
 
+  [hireDetail, nqtDetail].forEach(d => d && d.classList.toggle('open', willOpen));
+  [hireBtn, nqtBtn].forEach(b => {
+    if(!b) return;
+    b.classList.toggle('open', willOpen);
+    const txt = b.querySelector('.txt');
+    if(txt) txt.textContent = willOpen ? "Hide detailed calculation" : "See how it's calculated";
+  });
+}
 /* ── Campus overview (default landing view, no dropdown) ──
    Fetches every student row's college + department, groups them client
    side, and renders one card per college showing its student count and
