@@ -555,26 +555,53 @@ button, input, select, textarea { font-family: inherit; }
       </div>
     </div>
 
-    <div class="campus-hero">
-      <h1>FACE Prep Campus</h1>
-      <p>Every campus we currently have placement-readiness data for — student counts and streams at a glance. Click a campus to open its student list.</p>
+<div class="campus-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+        <div>
+          <h1>FACE Prep Campus</h1>
+          <p>Every campus we currently have placement-readiness data for — student counts and streams at a glance. Click a campus to open its student list.</p>
+        </div>
+        <button class="fpc-btn-dark" id="fpcEligFilterBtn" onclick="fpcToggleEligibleFilter()" style="flex-shrink:0;">🎯 Show 60%+ Eligible Students</button>
+      </div>
       <div class="campus-summary-row">
         <div class="fcb-stat"><div class="fcb-icn">🏫</div><div><div class="fcb-num" id="fcbCollegesCount">—</div><div class="fcb-lbl">Colleges</div></div></div>
         <div class="fcb-stat"><div class="fcb-icn">👩🏻‍💼</div><div><div class="fcb-num" id="fcbStudentsCount">—</div><div class="fcb-lbl">Students</div></div></div>
         <div class="fcb-stat"><div class="fcb-icn">🎓</div><div><div class="fcb-num" id="fcbStreamsCount">—</div><div class="fcb-lbl">Streams</div></div></div>
       </div>
     </div>
-
     <div id="fpcErrorBannerOverview" style="display:none;background:var(--fpc-red-dim);border:1px solid #EFC1BA;color:#8E332B;border-radius:var(--fpc-radius-lg);padding:14px 18px;margin-bottom:20px;font-size:13px;line-height:1.5;">
       <strong style="display:block;margin-bottom:3px;font-family:'Space Grotesk',sans-serif;">Couldn't load live data</strong>
       <span id="fpcErrorDetailOverview"></span>
     </div>
 
-    <div class="campus-grid" id="fpcCampusGrid">
+<div class="campus-grid" id="fpcCampusGrid">
       <div class="campus-empty">Loading campuses…</div>
     </div>
-  </div>
 
+    <div class="metric-table-wrap fpc-table-wrap" id="fpcEligibleTableWrap" style="display:none;">
+      <div class="panel-head" style="padding:16px 16px 0;">
+        <h2>60%+ Eligible Students <span class="cat-tag" style="margin-left:8px;"><span id="fpcEligibleCount">0</span> matching</span></h2>
+        <span>10th, 12th &amp; UG all ≥ 60% — PG also required if on file</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Reg. No.</th>
+            <th>College</th>
+            <th>Department</th>
+            <th>10th</th>
+            <th>12th</th>
+            <th>UG %</th>
+            <th>PG %</th>
+          </tr>
+        </thead>
+        <tbody id="fpcEligibleTableBody">
+          <tr class="loading-row"><td colspan="8">Loading eligible students…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
   <!-- ============================== FPC STUDENTS VIEW ============================== -->
   <div class="fpc-view" id="fpcViewStudents">
     <div class="topnav">
@@ -976,12 +1003,73 @@ async function fpcLoadCampusOverview(){
         </div>`;
     }).join('');
 
-    fpcSetStatus('live', `Live · ${names.length} campus${names.length===1?'':'es'} connected`);
+fpcSetStatus('live', `Live · ${names.length} campus${names.length===1?'':'es'} connected`);
   }catch(e){
     fpcSetStatus(null, 'Connection failed');
     document.getElementById('fpcErrorBannerOverview').style.display = 'block';
     document.getElementById('fpcErrorDetailOverview').textContent = `Couldn't load campuses from Supabase (${e.message}). Try refreshing the page.`;
     grid.innerHTML = '<div class="campus-empty">Couldn\'t load campus data.</div>';
+  }
+}
+
+/* ── 60%+ Eligible Students filter (Campus Overview, cross-college) ── */
+let fpcEligibleFilterActive = false;
+
+async function fpcToggleEligibleFilter(){
+  fpcEligibleFilterActive = !fpcEligibleFilterActive;
+  const btn = document.getElementById('fpcEligFilterBtn');
+  const grid = document.getElementById('fpcCampusGrid');
+  const tableWrap = document.getElementById('fpcEligibleTableWrap');
+
+  if(fpcEligibleFilterActive){
+    btn.textContent = '✕ Back to Campus Overview';
+    grid.style.display = 'none';
+    tableWrap.style.display = 'block';
+    await fpcLoadEligibleStudents();
+  } else {
+    btn.textContent = '🎯 Show 60%+ Eligible Students';
+    grid.style.display = '';
+    tableWrap.style.display = 'none';
+  }
+}
+
+async function fpcLoadEligibleStudents(){
+  const tbody = document.getElementById('fpcEligibleTableBody');
+  tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Loading eligible students…</td></tr>`;
+  try{
+    const url = `${FPC_SUPABASE_URL}/rest/v1/student_monitor_view?select=*`;
+    const res = await fetch(url, { headers:{ apikey: FPC_SUPABASE_ANON_KEY, Authorization: `Bearer ${FPC_SUPABASE_ANON_KEY}` } });
+    if(!res.ok) throw new Error(`Supabase responded ${res.status}`);
+    const rows = await res.json();
+
+    const eligible = rows.filter(s=>{
+      const tenth = fpcFmt(s.tenth_mark);
+      const twelfth = fpcFmt(s.twelfth_mark);
+      const ug = fpcFmt(s.ug_percentage);
+      const pg = fpcFmt(s.pg_percentage);
+      if(tenth === null || tenth < 60) return false;
+      if(twelfth === null || twelfth < 60) return false;
+      if(ug === null || ug < 60) return false;
+      if(pg !== null && pg < 60) return false; // only enforced if a PG score exists
+      return true;
+    });
+
+    document.getElementById('fpcEligibleCount').textContent = eligible.length;
+
+    tbody.innerHTML = eligible.length ? eligible.map(s => `
+      <tr>
+        <td>${escHTML(s.student_name || '—')}</td>
+        <td class="mono">${escHTML(s.registration_number || '—')}</td>
+        <td>${escHTML(s.college || '—')}</td>
+        <td>${escHTML(s.department || '—')}</td>
+        <td>${fpcPctTextSafe(s.tenth_mark)}</td>
+        <td>${fpcPctTextSafe(s.twelfth_mark)}</td>
+        <td>${fpcPctTextSafe(s.ug_percentage)}</td>
+        <td>${(s.pg_percentage !== null && s.pg_percentage !== undefined) ? fpcPctTextSafe(s.pg_percentage) : 'N/A'}</td>
+      </tr>`).join('')
+      : `<tr class="loading-row"><td colspan="8">No students currently meet this criteria.</td></tr>`;
+  }catch(e){
+    tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Couldn't load eligible students (${e.message}).</td></tr>`;
   }
 }
 
