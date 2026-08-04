@@ -788,6 +788,9 @@ button, input, select, textarea { font-family: inherit; }
         <option value="Eligible">Eligible</option>
         <option value="Pending">Pending review</option>
       </select>
+      <select id="fpcPrefFilter" onchange="fpcRenderTable()">
+        <option value="">All preferences</option>
+      </select>
       <select id="fpcSortSelect" onchange="fpcRenderTable()">
         <option value="s_no">Sort: Roll order</option>
         <option value="hire_overall_desc">Sort: HIRE Overall ↓</option>
@@ -894,6 +897,9 @@ button, input, select, textarea { font-family: inherit; }
             <div class="modal-field"><div class="f-label">12th mark</div><div class="f-value" id="fpc_mTwelfth">—</div><input type="number" id="fpc_eTwelfth" min="0" max="100" step="0.01"></div>
             <div class="modal-field"><div class="f-label">UG degree %</div><div class="f-value" id="fpc_mUg">—</div><input type="number" id="fpc_eUg" min="0" max="100" step="0.01"></div>
             <div class="modal-field"><div class="f-label">PG degree %</div><div class="f-value" id="fpc_mPg">—</div><input type="number" id="fpc_ePg" min="0" max="100" step="0.01"></div>
+            <div class="modal-field"><div class="f-label">1st Preference</div><div class="f-value" id="fpc_mPref1">—</div><input type="text" id="fpc_ePref1"></div>
+            <div class="modal-field"><div class="f-label">2nd Preference</div><div class="f-value" id="fpc_mPref2">—</div><input type="text" id="fpc_ePref2"></div>
+            <div class="modal-field"><div class="f-label">3rd Preference</div><div class="f-value" id="fpc_mPref3">—</div><input type="text" id="fpc_ePref3"></div>
           </div>
         </div>
 
@@ -951,7 +957,8 @@ button, input, select, textarea { font-family: inherit; }
         <b>Other columns:</b> student_name, department, email, eligibility_status (Eligible / blank), communication_skill_level,
         current_arrears, history_of_arrears, tenth_mark, twelfth_mark, ug_percentage, pg_percentage,
         hire_fop, hire_dsa, hire_aptitude, hire_overall, nqt_assessment_count, nqt_verbal_ability, nqt_numerical_ability,
-        nqt_reasoning_ability, nqt_advanced_quant_reasoning, nqt_coding, nqt_overall, linkedin_url, resume_url, github_url, efset_certificate_url
+        nqt_reasoning_ability, nqt_advanced_quant_reasoning, nqt_coding, nqt_overall, linkedin_url, resume_url, github_url, efset_certificate_url,
+        preference_1, preference_2, preference_3
       </div>
 
       <input type="file" id="fpcImportFileInput" accept=".csv" onchange="fpcHandleImportFile(this)" style="margin-bottom:14px;">
@@ -1409,18 +1416,36 @@ function fpcPopulateFilters(){
     sel.innerHTML = '<option value="">All departments</option>' + depts.map(d=>`<option value="${d}">${d}</option>`).join('');
     sel.value = prev;
   }
+
+  const prefs = new Set();
+  FPC_STUDENTS.forEach(s=>{
+    [s.preference_1, s.preference_2, s.preference_3].forEach(p=>{
+      if(p) p.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>prefs.add(x));
+    });
+  });
+  const prefSel = document.getElementById('fpcPrefFilter');
+  if(prefSel){
+    const prevP = prefSel.value;
+    prefSel.innerHTML = '<option value="">All preferences</option>' +
+      [...prefs].sort((a,b)=>a.localeCompare(b)).map(p=>`<option value="${escHTML(p)}">${escHTML(p)}</option>`).join('');
+    prefSel.value = prevP;
+  }
 }
-function fpcFilterSortStudents(qId, deptId, eligId, sortId){
+function fpcFilterSortStudents(qId, deptId, eligId, sortId, prefId){
   const q = document.getElementById(qId).value.trim().toLowerCase();
   const dept = document.getElementById(deptId).value;
   const elig = document.getElementById(eligId).value;
   const sortMode = document.getElementById(sortId).value;
+  const pref = prefId ? document.getElementById(prefId).value : '';
   let rows = FPC_STUDENTS.filter(s=>{
     const matchesQ = !q || s.student_name.toLowerCase().includes(q) || (s.registration_number||'').toLowerCase().includes(q) || (s.email||'').toLowerCase().includes(q);
     const matchesDept = !dept || s.department===dept;
     const isEligible = s.eligibility_status && s.eligibility_status.toLowerCase()==='eligible';
     const matchesElig = !elig || (elig==='Eligible' ? isEligible : !isEligible);
-    return matchesQ && matchesDept && matchesElig;
+    const matchesPref = !pref || [s.preference_1, s.preference_2, s.preference_3].some(p =>
+      p && p.split(',').map(x=>x.trim()).includes(pref)
+    );
+    return matchesQ && matchesDept && matchesElig && matchesPref;
   });
   rows.sort((a,b)=>{
     if(sortMode==='hire_overall_desc') return (fpcFmt(b.hire_overall)||0)-(fpcFmt(a.hire_overall)||0);
@@ -1477,7 +1502,7 @@ function fpcStudentCardHtml(s){
   </div>`;
 }
 function fpcRenderTable(){
-  const rows = fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect');
+  const rows = fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect','fpcPrefFilter');
   document.getElementById('fpcRowCount').textContent = `${rows.length} of ${FPC_STUDENTS.length} students`;
   document.getElementById('fpcTableBody').innerHTML = rows.length ? rows.map(fpcStudentCardHtml).join('')
     : `<div class="fpc-cards-empty">${FPC_STUDENTS.length ? 'No students match this filter.' : 'No students on file for this college yet.'}</div>`;
@@ -1490,7 +1515,7 @@ function fpcCurrentProfileList(){
   if(fpcProfileReturnView === 'eligible'){
     return fpcEligibleStudentsList;
   }
-  return fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect');
+  return fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect','fpcPrefFilter');
 }
 function fpcUpdateProfileStepControls(){
   const list = fpcCurrentProfileList();
@@ -1632,8 +1657,12 @@ function fpcViewProfile(regNo, returnView){
       ? `<span class="metric-badge ${(fpcFmt(s.hire_overall)||0) >= 60 ? 'ok' : (fpcFmt(s.hire_overall)||0) >= 35 ? 'warn' : 'risk'}">${(fpcFmt(s.hire_overall)||0) >= 60 ? 'Strong' : (fpcFmt(s.hire_overall)||0) >= 35 ? 'Developing' : 'Needs work'}</span><span class="pstat-sub-txt">composite score, not a percentage</span>`
       : `<span class="metric-badge na">No API match</span><span class="pstat-sub-txt">registration number not found in HIRE</span>`;
   }
-  const details = [ ['10th mark', fpcPctTextSafe(s.tenth_mark)], ['12th mark', fpcPctTextSafe(s.twelfth_mark)], ['UG degree %', fpcPctTextSafe(s.ug_percentage)],
-    ['PG degree %', fpcPctTextSafe(s.pg_percentage)], ['Current arrears', fpcNumTextSafe(s.current_arrears)], ['History of arrears', fpcNumTextSafe(s.history_of_arrears)] ];
+  const details = [
+    ['10th mark', fpcPctTextSafe(s.tenth_mark)], ['12th mark', fpcPctTextSafe(s.twelfth_mark)],
+    ['UG degree %', fpcPctTextSafe(s.ug_percentage)], ['PG degree %', fpcPctTextSafe(s.pg_percentage)],
+    ['Current arrears', fpcNumTextSafe(s.current_arrears)], ['History of arrears', fpcNumTextSafe(s.history_of_arrears)],
+    ['1st Preference', s.preference_1 || '—'], ['2nd Preference', s.preference_2 || '—'], ['3rd Preference', s.preference_3 || '—']
+  ];
   document.getElementById('fpcPProfileGrid').innerHTML = details.map(([label,val])=>`<div class="detail-item"><div class="d-label">${label}</div><div class="d-val">${val}</div></div>`).join('');
 document.getElementById('fpcPLinks').innerHTML =
   fpcLinkPill('LinkedIn', '🔗', s.linkedin_url, 'link') +
@@ -1703,6 +1732,9 @@ function fpcOpenModal(regNo, startInEdit){
   document.getElementById('fpc_mTwelfth').textContent = fpcPctText(s.twelfth_mark);
   document.getElementById('fpc_mUg').textContent = fpcPctText(s.ug_percentage);
   document.getElementById('fpc_mPg').textContent = fpcPctText(s.pg_percentage);
+  document.getElementById('fpc_mPref1').textContent = s.preference_1 || '—';
+  document.getElementById('fpc_mPref2').textContent = s.preference_2 || '—';
+  document.getElementById('fpc_mPref3').textContent = s.preference_3 || '—';
   document.getElementById('fpc_mFop').textContent = s.hire_matched ? fpcPctText(s.hire_fop) : 'No API match';
   document.getElementById('fpc_mDsa').textContent = s.hire_matched ? fpcPctText(s.hire_dsa) : 'No API match';
   document.getElementById('fpc_mAptitude').textContent = s.hire_matched ? fpcPctText(s.hire_aptitude) : 'No API match';
@@ -1720,6 +1752,7 @@ document.getElementById('fpc_mLinks').innerHTML = fpcLinkRow('LinkedIn', s.linke
   fpcSetInputVal('fpc_eCommLevel', s.communication_skill_level);
   fpcSetInputVal('fpc_eCurrentArrears', s.current_arrears ?? 0); fpcSetInputVal('fpc_eHistoryArrears', s.history_of_arrears ?? 0);
   fpcSetInputVal('fpc_eTenth', s.tenth_mark); fpcSetInputVal('fpc_eTwelfth', s.twelfth_mark); fpcSetInputVal('fpc_eUg', s.ug_percentage); fpcSetInputVal('fpc_ePg', s.pg_percentage);
+  fpcSetInputVal('fpc_ePref1', s.preference_1); fpcSetInputVal('fpc_ePref2', s.preference_2); fpcSetInputVal('fpc_ePref3', s.preference_3);
   fpcSetInputVal('fpc_eNqtCount', s.nqt_assessment_count); fpcSetInputVal('fpc_eVerbal', s.nqt_verbal_ability); fpcSetInputVal('fpc_eNumerical', s.nqt_numerical_ability);
   fpcSetInputVal('fpc_eReasoning', s.nqt_reasoning_ability); fpcSetInputVal('fpc_eAdvQuant', s.nqt_advanced_quant_reasoning); fpcSetInputVal('fpc_eCoding', s.nqt_coding); fpcSetInputVal('fpc_eNqtOverall', s.nqt_overall);
   fpcSetInputVal('fpc_eLinkedin', s.linkedin_url); fpcSetInputVal('fpc_eResume', s.resume_url); fpcSetInputVal('fpc_eGithub', s.github_url); fpcSetInputVal('fpc_eEfset', s.efset_certificate_url);
@@ -1765,6 +1798,7 @@ async function fpcSaveEdit(){
       eligibility_status: fpcTextVal('fpc_eEligibility'), communication_skill_level: fpcTextVal('fpc_eCommLevel'),
       current_arrears: fpcIntVal('fpc_eCurrentArrears'), history_of_arrears: fpcIntVal('fpc_eHistoryArrears'),
       tenth_mark: fpcNumVal('fpc_eTenth'), twelfth_mark: fpcNumVal('fpc_eTwelfth'), ug_percentage: fpcNumVal('fpc_eUg'), pg_percentage: fpcNumVal('fpc_ePg'),
+      preference_1: fpcTextVal('fpc_ePref1'), preference_2: fpcTextVal('fpc_ePref2'), preference_3: fpcTextVal('fpc_ePref3'),
       linkedin_url: fpcTextVal('fpc_eLinkedin'), resume_url: fpcTextVal('fpc_eResume'), github_url: fpcTextVal('fpc_eGithub'), efset_certificate_url: fpcTextVal('fpc_eEfset')
     };
     Object.keys(studentsPayload).forEach(k => studentsPayload[k] === undefined && delete studentsPayload[k]);
@@ -1816,7 +1850,8 @@ const FPC_IMPORT_COLUMNS = [
   'tenth_mark','twelfth_mark','ug_percentage','pg_percentage',
   'nqt_assessment_count','nqt_verbal_ability','nqt_numerical_ability',
   'nqt_reasoning_ability','nqt_advanced_quant_reasoning','nqt_coding','nqt_overall',
-  'linkedin_url','resume_url','github_url','efset_certificate_url'
+  'linkedin_url','resume_url','github_url','efset_certificate_url',
+  'preference_1','preference_2','preference_3'
 ];
 
 let fpcImportRows = [];
@@ -1935,6 +1970,9 @@ async function fpcConfirmImport(){
         twelfth_mark: fpcNumOrNull(r.twelfth_mark),
         ug_percentage: fpcNumOrNull(r.ug_percentage),
         pg_percentage: fpcNumOrNull(r.pg_percentage),
+        preference_1: r.preference_1 || null,
+        preference_2: r.preference_2 || null,
+        preference_3: r.preference_3 || null,
         linkedin_url: r.linkedin_url || null,
         resume_url: r.resume_url || null,
         github_url: r.github_url || null,
@@ -1992,7 +2030,7 @@ function fpcOpenAddStudentModal(){
   document.getElementById('fpcModalSub').textContent = college;
 
   ['fpc_mName','fpc_mDept','fpc_mEmail','fpc_mRegNo','fpc_mCommLevel','fpc_mCurrentArrears','fpc_mHistoryArrears',
-   'fpc_mTenth','fpc_mTwelfth','fpc_mUg','fpc_mPg','fpc_mFop','fpc_mDsa','fpc_mAptitude','fpc_mHireOverall',
+   'fpc_mTenth','fpc_mTwelfth','fpc_mUg','fpc_mPg','fpc_mPref1','fpc_mPref2','fpc_mPref3','fpc_mFop','fpc_mDsa','fpc_mAptitude','fpc_mHireOverall',
    'fpc_mNqtCount','fpc_mVerbal','fpc_mNumerical','fpc_mReasoning','fpc_mAdvQuant','fpc_mCoding','fpc_mNqtOverall'
   ].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '—'; });
   document.getElementById('fpc_mEligibility').innerHTML = `<span class="fpc-badge pending">Pending review</span>`;
@@ -2010,7 +2048,7 @@ function fpcOpenAddStudentModal(){
   regInput.style.display = 'block';
 
   ['fpc_eName','fpc_eDept','fpc_eEmail','fpc_eEligibility','fpc_eCommLevel','fpc_eCurrentArrears','fpc_eHistoryArrears',
-   'fpc_eTenth','fpc_eTwelfth','fpc_eUg','fpc_ePg',
+   'fpc_eTenth','fpc_eTwelfth','fpc_eUg','fpc_ePg','fpc_ePref1','fpc_ePref2','fpc_ePref3',
    'fpc_eNqtCount','fpc_eVerbal','fpc_eNumerical','fpc_eReasoning','fpc_eAdvQuant','fpc_eCoding','fpc_eNqtOverall',
    'fpc_eLinkedin','fpc_eResume','fpc_eGithub','fpc_eEfset'
   ].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
