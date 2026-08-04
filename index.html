@@ -1209,28 +1209,50 @@ async function fpcLoadEligibleStudents(){
   }
 }
 
+/* ── Preference combinations helpers ──
+   A student's "preference" is the ordered triplet (1st, 2nd, 3rd), not
+   three independent values. These helpers build/read/match that triplet
+   as a single unit so the filter dropdown lists actual combinations
+   students picked (e.g. "Non-Technical → Technical Support / IT
+   Operations → Software / Technical") instead of a flat pool of every
+   individual value across all three slots. */
+function fpcPrefCombosFrom(list){
+  const map = new Map();
+  list.forEach(s=>{
+    const p1 = (s.preference_1||'').trim();
+    const p2 = (s.preference_2||'').trim();
+    const p3 = (s.preference_3||'').trim();
+    if(!p1 && !p2 && !p3) return;
+    const key = `${p1}||${p2}||${p3}`;
+    if(!map.has(key)) map.set(key, {p1,p2,p3});
+  });
+  return [...map.values()];
+}
+function fpcPrefComboLabel(c){
+  return [c.p1,c.p2,c.p3].filter(Boolean).join(' → ');
+}
+function fpcPrefComboValue(c){
+  return `${c.p1}||${c.p2}||${c.p3}`;
+}
+function fpcStudentPrefCombo(s){
+  return fpcPrefComboValue({ p1:(s.preference_1||'').trim(), p2:(s.preference_2||'').trim(), p3:(s.preference_3||'').trim() });
+}
+
 /* ── NEW: preference filter for the cross-college eligible table ── */
 function fpcPopulateOverviewPrefFilter(list){
   const sel = document.getElementById('fpcOverviewPrefFilter');
   if(!sel) return;
-  const prefs = new Set();
-  list.forEach(s=>{
-    [s.preference_1, s.preference_2, s.preference_3].forEach(p=>{
-      if(p) p.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>prefs.add(x));
-    });
-  });
+  const combos = fpcPrefCombosFrom(list).sort((a,b)=>fpcPrefComboLabel(a).localeCompare(fpcPrefComboLabel(b)));
   const prev = sel.value;
   sel.innerHTML = '<option value="">All preferences</option>' +
-    [...prefs].sort((a,b)=>a.localeCompare(b)).map(p=>`<option value="${escHTML(p)}">${escHTML(p)}</option>`).join('');
+    combos.map(c=>`<option value="${escHTML(fpcPrefComboValue(c))}">${escHTML(fpcPrefComboLabel(c))}</option>`).join('');
   sel.value = prev;
 }
 function fpcFilteredEligibleList(){
   const prefSel = document.getElementById('fpcOverviewPrefFilter');
   const pref = prefSel ? prefSel.value : '';
   if(!pref) return fpcEligibleStudentsList;
-  return fpcEligibleStudentsList.filter(s => [s.preference_1, s.preference_2, s.preference_3].some(p =>
-    p && p.split(',').map(x=>x.trim()).includes(pref)
-  ));
+  return fpcEligibleStudentsList.filter(s => fpcStudentPrefCombo(s) === pref);
 }
 function fpcRenderEligibleTable(){
   const tbody = document.getElementById('fpcEligibleTableBody');
@@ -1460,17 +1482,12 @@ function fpcPopulateFilters(){
     sel.value = prev;
   }
 
-  const prefs = new Set();
-  FPC_STUDENTS.forEach(s=>{
-    [s.preference_1, s.preference_2, s.preference_3].forEach(p=>{
-      if(p) p.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>prefs.add(x));
-    });
-  });
+  const combos = fpcPrefCombosFrom(FPC_STUDENTS).sort((a,b)=>fpcPrefComboLabel(a).localeCompare(fpcPrefComboLabel(b)));
   const prefSel = document.getElementById('fpcPrefFilter');
   if(prefSel){
     const prevP = prefSel.value;
     prefSel.innerHTML = '<option value="">All preferences</option>' +
-      [...prefs].sort((a,b)=>a.localeCompare(b)).map(p=>`<option value="${escHTML(p)}">${escHTML(p)}</option>`).join('');
+      combos.map(c=>`<option value="${escHTML(fpcPrefComboValue(c))}">${escHTML(fpcPrefComboLabel(c))}</option>`).join('');
     prefSel.value = prevP;
   }
 }
@@ -1485,9 +1502,7 @@ function fpcFilterSortStudents(qId, deptId, eligId, sortId, prefId){
     const matchesDept = !dept || s.department===dept;
     const isEligible = s.eligibility_status && s.eligibility_status.toLowerCase()==='eligible';
     const matchesElig = !elig || (elig==='Eligible' ? isEligible : !isEligible);
-    const matchesPref = !pref || [s.preference_1, s.preference_2, s.preference_3].some(p =>
-      p && p.split(',').map(x=>x.trim()).includes(pref)
-    );
+    const matchesPref = !pref || fpcStudentPrefCombo(s) === pref;
     return matchesQ && matchesDept && matchesElig && matchesPref;
   });
   rows.sort((a,b)=>{
