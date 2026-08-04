@@ -650,6 +650,12 @@ button, input, select, textarea { font-family: inherit; }
         </div>
         <button class="fpc-btn-dark" id="fpcEligFilterBtn" onclick="fpcToggleEligibleFilter()" style="flex-shrink:0;">🎯 Show 60%+ Eligible Students</button>
       </div>
+      <div id="fpcOverviewPrefFilterRow" style="display:none;justify-content:flex-end;margin-top:10px;">
+        <select id="fpcOverviewPrefFilter" onchange="fpcRenderEligibleTable()"
+          style="background:var(--fpc-card);border:1px solid var(--fpc-line);color:var(--fpc-ink);padding:9px 13px;border-radius:100px;font-size:13px;font-family:inherit;min-width:200px;">
+          <option value="">All preferences</option>
+        </select>
+      </div>
       <div class="campus-summary-row">
         <div class="fcb-stat"><div class="fcb-icn">🏫</div><div><div class="fcb-num" id="fcbCollegesCount">—</div><div class="fcb-lbl">Colleges</div></div></div>
         <div class="fcb-stat"><div class="fcb-icn">👩🏻‍💼</div><div><div class="fcb-num" id="fcbStudentsCount">—</div><div class="fcb-lbl">Students</div></div></div>
@@ -1153,16 +1159,21 @@ async function fpcToggleEligibleFilter(){
   const btn = document.getElementById('fpcEligFilterBtn');
   const grid = document.getElementById('fpcCampusGrid');
   const tableWrap = document.getElementById('fpcEligibleTableWrap');
+  const prefRow = document.getElementById('fpcOverviewPrefFilterRow');
 
   if(fpcEligibleFilterActive){
     btn.textContent = '✕ Back to Campus Overview';
     grid.style.display = 'none';
     tableWrap.style.display = 'block';
+    if(prefRow) prefRow.style.display = 'flex';
     await fpcLoadEligibleStudents();
   } else {
     btn.textContent = '🎯 Show 60%+ Eligible Students';
     grid.style.display = '';
     tableWrap.style.display = 'none';
+    if(prefRow) prefRow.style.display = 'none';
+    const prefSel = document.getElementById('fpcOverviewPrefFilter');
+    if(prefSel) prefSel.value = '';
   }
 }
 
@@ -1188,30 +1199,60 @@ async function fpcLoadEligibleStudents(){
       return true;
     });
 
-fpcEligibleStudentsList = eligible;
-    document.getElementById('fpcEligibleCount').textContent = eligible.length;
-
-tbody.innerHTML = eligible.length ? eligible.map(s => {
-      const regSafe = escHTML(s.registration_number||'').replace(/'/g,"\\'");
-      const collegeSafe = escHTML(s.college||'').replace(/'/g,"\\'");
-      return `
-      <tr style="cursor:pointer;" onclick="fpcOpenEligibleProfile('${collegeSafe}','${regSafe}')">
-        <td>${escHTML(s.student_name || '—')}</td>
-        <td class="mono">${escHTML(s.registration_number || '—')}</td>
-        <td>${escHTML(s.college || '—')}</td>
-        <td>${escHTML(s.department || '—')}</td>
-        <td>${fpcPctTextSafe(s.tenth_mark)}</td>
-        <td>${fpcPctTextSafe(s.twelfth_mark)}</td>
-        <td>${fpcPctTextSafe(s.ug_percentage)}</td>
-        <td>${(s.pg_percentage !== null && s.pg_percentage !== undefined) ? fpcPctTextSafe(s.pg_percentage) : 'N/A'}</td>
-      </tr>`;
-    }).join('')
-      : `<tr class="loading-row"><td colspan="8">No students currently meet this criteria.</td></tr>`;
+    fpcEligibleStudentsList = eligible;
+    fpcPopulateOverviewPrefFilter(eligible);
+    fpcRenderEligibleTable();
   }catch(e){
     tbody.innerHTML = `<tr class="loading-row"><td colspan="8">Couldn't load eligible students (${e.message}).</td></tr>`;
   }finally{
     fpcHideGlobalLoader();
   }
+}
+
+/* ── NEW: preference filter for the cross-college eligible table ── */
+function fpcPopulateOverviewPrefFilter(list){
+  const sel = document.getElementById('fpcOverviewPrefFilter');
+  if(!sel) return;
+  const prefs = new Set();
+  list.forEach(s=>{
+    [s.preference_1, s.preference_2, s.preference_3].forEach(p=>{
+      if(p) p.split(',').map(x=>x.trim()).filter(Boolean).forEach(x=>prefs.add(x));
+    });
+  });
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">All preferences</option>' +
+    [...prefs].sort((a,b)=>a.localeCompare(b)).map(p=>`<option value="${escHTML(p)}">${escHTML(p)}</option>`).join('');
+  sel.value = prev;
+}
+function fpcFilteredEligibleList(){
+  const prefSel = document.getElementById('fpcOverviewPrefFilter');
+  const pref = prefSel ? prefSel.value : '';
+  if(!pref) return fpcEligibleStudentsList;
+  return fpcEligibleStudentsList.filter(s => [s.preference_1, s.preference_2, s.preference_3].some(p =>
+    p && p.split(',').map(x=>x.trim()).includes(pref)
+  ));
+}
+function fpcRenderEligibleTable(){
+  const tbody = document.getElementById('fpcEligibleTableBody');
+  const rows = fpcFilteredEligibleList();
+  document.getElementById('fpcEligibleCount').textContent = rows.length;
+
+  tbody.innerHTML = rows.length ? rows.map(s => {
+    const regSafe = escHTML(s.registration_number||'').replace(/'/g,"\\'");
+    const collegeSafe = escHTML(s.college||'').replace(/'/g,"\\'");
+    return `
+    <tr style="cursor:pointer;" onclick="fpcOpenEligibleProfile('${collegeSafe}','${regSafe}')">
+      <td>${escHTML(s.student_name || '—')}</td>
+      <td class="mono">${escHTML(s.registration_number || '—')}</td>
+      <td>${escHTML(s.college || '—')}</td>
+      <td>${escHTML(s.department || '—')}</td>
+      <td>${fpcPctTextSafe(s.tenth_mark)}</td>
+      <td>${fpcPctTextSafe(s.twelfth_mark)}</td>
+      <td>${fpcPctTextSafe(s.ug_percentage)}</td>
+      <td>${(s.pg_percentage !== null && s.pg_percentage !== undefined) ? fpcPctTextSafe(s.pg_percentage) : 'N/A'}</td>
+    </tr>`;
+  }).join('')
+    : `<tr class="loading-row"><td colspan="8">No students currently meet this criteria.</td></tr>`;
 }
 
 async function fpcOpenEligibleProfile(college, regNo){
@@ -1401,6 +1442,8 @@ function fpcGoBackFromProfile(){
     if(btn) btn.textContent = '✕ Back to Campus Overview';
     document.getElementById('fpcCampusGrid').style.display = 'none';
     document.getElementById('fpcEligibleTableWrap').style.display = 'block';
+    const prefRow = document.getElementById('fpcOverviewPrefFilterRow');
+    if(prefRow) prefRow.style.display = 'flex';
     fpcLoadEligibleStudents();
     return;
   }
@@ -1513,7 +1556,7 @@ function fpcRenderAll(){
 
 function fpcCurrentProfileList(){
   if(fpcProfileReturnView === 'eligible'){
-    return fpcEligibleStudentsList;
+    return fpcFilteredEligibleList();
   }
   return fpcFilterSortStudents('fpcSearchBox','fpcDeptFilter','fpcEligFilter','fpcSortSelect','fpcPrefFilter');
 }
