@@ -659,7 +659,6 @@ button, input, select, textarea { font-family: inherit; }
       <div class="campus-summary-row">
         <div class="fcb-stat"><div class="fcb-icn">🏫</div><div><div class="fcb-num" id="fcbCollegesCount">—</div><div class="fcb-lbl">Colleges</div></div></div>
         <div class="fcb-stat"><div class="fcb-icn">👩🏻‍💼</div><div><div class="fcb-num" id="fcbStudentsCount">—</div><div class="fcb-lbl">Students</div></div></div>
-        <div class="fcb-stat"><div class="fcb-icn">🎓</div><div><div class="fcb-num" id="fcbStreamsCount">—</div><div class="fcb-lbl">Streams</div></div></div>
       </div>
     </div>
     <div id="fpcErrorBannerOverview" style="display:none;background:var(--fpc-red-dim);border:1px solid #EFC1BA;color:#8E332B;border-radius:var(--fpc-radius-lg);padding:14px 18px;margin-bottom:20px;font-size:13px;line-height:1.5;">
@@ -1110,8 +1109,6 @@ async function fpcLoadCampusOverview(){
     document.getElementById('fpcErrorBannerOverview').style.display = 'none';
     document.getElementById('fcbCollegesCount').textContent = names.length;
     document.getElementById('fcbStudentsCount').textContent = rows.length;
-    const allStreams = new Set(rows.map(r=>(r.department||'').trim()).filter(Boolean));
-    document.getElementById('fcbStreamsCount').textContent = allStreams.size;
 
     if(!names.length){
       grid.innerHTML = '<div class="campus-empty">No campuses with data yet.</div>';
