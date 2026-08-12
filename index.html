@@ -1712,13 +1712,12 @@ function fpcViewProfile(regNo, returnView){
       ? `<span class="metric-badge ${(fpcFmt(s.hire_overall)||0) >= 60 ? 'ok' : (fpcFmt(s.hire_overall)||0) >= 35 ? 'warn' : 'risk'}">${(fpcFmt(s.hire_overall)||0) >= 60 ? 'Strong' : (fpcFmt(s.hire_overall)||0) >= 35 ? 'Developing' : 'Needs work'}</span><span class="pstat-sub-txt">composite score, not a percentage</span>`
       : `<span class="metric-badge na">No API match</span><span class="pstat-sub-txt">registration number not found in HIRE</span>`;
   }
-  const details = [
+const details = [
     ['10th mark', fpcPctTextSafe(s.tenth_mark)], ['12th mark', fpcPctTextSafe(s.twelfth_mark)],
     ['UG degree %', fpcPctTextSafe(s.ug_percentage)], ['PG degree %', fpcPctTextSafe(s.pg_percentage)],
-    ['Current arrears', fpcNumTextSafe(s.current_arrears)], ['History of arrears', fpcNumTextSafe(s.history_of_arrears)],
-    ['1st Preference', s.preference_1 || '—'], ['2nd Preference', s.preference_2 || '—'], ['3rd Preference', s.preference_3 || '—']
+    ['Current arrears', fpcNumTextSafe(s.current_arrears)], ['History of arrears', fpcNumTextSafe(s.history_of_arrears)]
   ];
-  document.getElementById('fpcPProfileGrid').innerHTML = details.map(([label,val])=>`<div class="detail-item"><div class="d-label">${label}</div><div class="d-val">${val}</div></div>`).join('');
+ document.getElementById('fpcPProfileGrid').innerHTML = details.map(([label,val])=>`<div class="detail-item"><div class="d-label">${label}</div><div class="d-val">${val}</div></div>`).join('');
 document.getElementById('fpcPLinks').innerHTML =
   fpcLinkPill('LinkedIn', '🔗', s.linkedin_url, 'link') +
   fpcLinkPill('Resume', '📄', s.resume_url, 'doc') +
@@ -1735,11 +1734,12 @@ function fpcBioChips(s){
   const chips = [
     { lbl:'Email', val: s.email || 'Not on file' },
     { lbl:'Communication level', val: s.communication_skill_level || 'Not assessed' },
-    { lbl:'Arrears', val: arrearsWarn ? `${arrearsCount} current` : 'None', warn: arrearsWarn }
+    { lbl:'Arrears', val: arrearsWarn ? `${arrearsCount} current` : 'None', warn: arrearsWarn },
+    { lbl:'Preference', val: s.preference_1 || 'Not set' }
   ];
   return chips.map(c => `<div class="p-meta-chip${c.warn?' warn':''}"><span class="pmc-lbl">${c.lbl}:</span><span class="pmc-val">${escHTML(c.val)}</span></div>`).join('');
 }
-function fpcPctTextSafe(v){ const n=fpcFmt(v); return n===null?'—':`${n}%`; }
+ function fpcPctTextSafe(v){ const n=fpcFmt(v); return n===null?'—':`${n}%`; }
 function fpcNumTextSafe(v){ const n=fpcFmt(v); return n===null?'—':`${n}`; }
 function fpcPctText(v){ return fpcPctTextSafe(v); }
 function fpcNumText(v){ return fpcNumTextSafe(v); }
